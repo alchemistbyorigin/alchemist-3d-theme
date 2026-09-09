@@ -1,36 +1,25 @@
 {% doc %}
-  Renders a responsive image that might be wrapped in a link.
+  Renders a responsive Shopify image with optional link wrapping.
 
-  When `width`, `height` and `crop` are provided, the image will be rendered
-  with a fixed aspect ratio.
-
-  Serves as an example of how to use the `image_url` filter and `image_tag` filter
-  as well as how you can use LiquidDoc to document your code.
-
-  @param {image} image - The image to be rendered
-  @param {string} [url] - An optional destination URL for the image
-  @param {string} [class] - Optional class to be added to the image wrapper
-  @param {number} [width] - The highest resolution width of the image to be rendered
-  @param {number} [height] - The highest resolution height of the image to be rendered
-  @param {string} [crop] - The crop position of the image
-
-  @example
-  {% render 'image', image: product.featured_image %}
-  {% render 'image', image: product.featured_image, url: product.url %}
-  {% render 'image',
-    class: 'product__image',
-    image: product.featured_image,
-    url: product.url,
-    width: 1200,
-    height: 800,
-    crop: 'center',
-  %}
+  @param {image} image - Image object to render
+  @param {string} [url] - Optional destination URL
+  @param {string} [class] - Optional wrapper class
+  @param {number} [width] - Maximum rendered source width
+  @param {number} [height] - Optional fixed height
+  @param {string} [crop] - Optional crop position
+  @param {string} [widths] - Responsive source widths
+  @param {string} [sizes] - Responsive sizes attribute
+  @param {string} [loading] - lazy or eager
+  @param {string} [fetchpriority] - high, low, or auto
+  @param {string} [alt] - Optional alt override
 {% enddoc %}
 
 {% liquid
-  unless height
-    assign width = width | default: image.width
-  endunless
+  assign image_width = width | default: image.width
+  assign image_widths = widths | default: '375, 550, 750, 1100, 1500, 2000'
+  assign image_sizes = sizes | default: '100vw'
+  assign image_loading = loading | default: 'lazy'
+  assign image_alt = alt | default: image.alt
 
   if url
     assign wrapper = 'a'
@@ -41,11 +30,18 @@
 
 <{{ wrapper }}
   class="image {{ class }}"
-  {% if url %}
-    href="{{ url }}"
-  {% endif %}
+  {% if url %}href="{{ url }}"{% endif %}
 >
-  {{ image | image_url: width: width, height: height, crop: crop | image_tag }}
+  {{
+    image
+    | image_url: width: image_width, height: height, crop: crop
+    | image_tag:
+      loading: image_loading,
+      fetchpriority: fetchpriority,
+      widths: image_widths,
+      sizes: image_sizes,
+      alt: image_alt
+  }}
 </{{ wrapper }}>
 
 {% stylesheet %}
@@ -58,6 +54,7 @@
   }
 
   .image > img {
+    display: block;
     width: 100%;
     height: auto;
   }
