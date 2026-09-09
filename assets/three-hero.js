@@ -61,7 +61,7 @@
       return;
     }
 
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reducedMotion = settings.motionEnabled === false || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const quality = qualityProfile(settings);
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
