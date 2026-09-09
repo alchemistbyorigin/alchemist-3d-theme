@@ -4,6 +4,12 @@
     "not_found": "Page not found.",
     "back_to_shopping": "Back to shopping"
   },
+  "accessibility": {
+    "skip_to_content": "Skip to content",
+    "close": "Close",
+    "open_menu": "Open menu",
+    "close_menu": "Close menu"
+  },
   "blog": {
     "article_comments": "Comments",
     "article_metadata_html": "{{ date }} by {{ author }}",
@@ -17,7 +23,10 @@
     "checkout": "Checkout",
     "title": "Cart",
     "update": "Update",
-    "remove": "Remove"
+    "remove": "Remove",
+    "empty": "Your cart is empty",
+    "quantity": "Quantity",
+    "subtotal": "Subtotal"
   },
   "customers": {
     "login": {
@@ -25,10 +34,14 @@
       "password": "Password",
       "submit": "Sign in",
       "title": "Login"
-    }
+    },
+    "account": "Account",
+    "sign_in": "Sign in"
   },
   "collections": {
-    "title": "Collections"
+    "title": "Collections",
+    "view_all": "View collection",
+    "explore": "Explore"
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",
@@ -37,10 +50,31 @@
     "expires_on": "Expires on {{ expires_on }}",
     "use_at_checkout": "Use this gift card at checkout"
   },
+  "header": {
+    "main_navigation": "Main navigation",
+    "mobile_navigation": "Mobile navigation",
+    "menu": "Menu",
+    "search": "Search",
+    "cart": "Cart",
+    "country": "Country",
+    "toggle_submenu": "Toggle {{ title }} submenu"
+  },
   "password": {
     "title": "This shop is private",
     "password": "Password",
     "enter": "Enter"
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "Add to cart",
+      "sold_out": "Sold out",
+      "quantity": "Quantity",
+      "specs": "Specs",
+      "description": "Description",
+      "shipping": "Shipping",
+      "sale": "Sale",
+      "quick_add": "Add {{ title }} to cart"
+    }
   },
   "search": {
     "title": "Search",
