@@ -10,12 +10,17 @@
         {% case media.media_type %}
           {% when 'image' %}
             {% assign media_loading = 'lazy' %}
-            {% if forloop.first %}{% assign media_loading = 'eager' %}{% endif %}
+            {% assign media_fetchpriority = 'auto' %}
+            {% if forloop.first %}
+              {% assign media_loading = 'eager' %}
+              {% assign media_fetchpriority = 'high' %}
+            {% endif %}
             {{
               media
               | image_url: width: 1400
               | image_tag:
                 loading: media_loading,
+                fetchpriority: media_fetchpriority,
                 widths: '480, 720, 960, 1200, 1400',
                 sizes: '(min-width: 990px) 60vw, 100vw',
                 alt: media.alt | default: product.title | escape
@@ -57,10 +62,16 @@
         </div>
       {% endunless %}
       <div class="main-product__purchase">
-        <label for="ProductQuantity-{{ section.id }}">Quantity</label>
+        <label for="ProductQuantity-{{ section.id }}">{{ 'products.product.quantity' | t }}</label>
         <input id="ProductQuantity-{{ section.id }}" type="number" name="quantity" min="1" value="1">
         <button type="submit" name="add" data-add-to-cart {% unless current_variant.available %}disabled{% endunless %}>
-          <span data-add-label>{% if current_variant.available %}Add to cart{% else %}Sold out{% endif %}</span>
+          <span data-add-label>
+            {% if current_variant.available %}
+              {{ 'products.product.add_to_cart' | t }}
+            {% else %}
+              {{ 'products.product.sold_out' | t }}
+            {% endif %}
+          </span>
         </button>
       </div>
       {{ form | payment_button }}
@@ -69,15 +80,15 @@
 
     <div class="main-product__accordions">
       <details>
-        <summary>Specs</summary>
+        <summary>{{ 'products.product.specs' | t }}</summary>
         <div>{{ product.metafields.custom.specifications | metafield_tag }}</div>
       </details>
       <details>
-        <summary>Description</summary>
+        <summary>{{ 'products.product.description' | t }}</summary>
         <div>{{ product.description }}</div>
       </details>
       <details>
-        <summary>Shipping</summary>
+        <summary>{{ 'products.product.shipping' | t }}</summary>
         <div>{{ section.settings.shipping_text }}</div>
       </details>
     </div>
@@ -85,6 +96,7 @@
 </section>
 
 <script type="application/json" data-product-variants>{{ product.variants | json }}</script>
+{% render 'schema-product', product: product %}
 
 {% style %}
   .main-product { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(20rem, .8fr); gap: clamp(2rem, 6vw, 6rem); max-width: 1200px; margin: 0 auto; padding: 3rem 1rem; }
@@ -103,7 +115,7 @@
   .main-product__option select { width: 100%; }
   .main-product__purchase { display: grid; grid-template-columns: 1fr 5rem; gap: .5rem; margin: 1.5rem 0 .75rem; }
   .main-product__purchase label { grid-column: 1 / -1; }
-  .main-product__purchase button { grid-column: 1 / -1; padding: 1rem; background: var(--accent-cyan); color: var(--bg-dark); border: 0; cursor: pointer; }
+  .main-product__purchase button { grid-column: 1 / -1; min-height: 48px; padding: 1rem; background: var(--accent-cyan); color: var(--bg-dark); border: 0; cursor: pointer; }
   .main-product__purchase button:disabled { cursor: not-allowed; opacity: .5; }
   .main-product__accordions { margin-top: 2rem; border-top: 1px solid var(--border-subtle); }
   .main-product__accordions details { padding: 1rem 0; border-bottom: 1px solid var(--border-subtle); }
