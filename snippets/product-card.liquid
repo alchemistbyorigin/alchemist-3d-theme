@@ -32,7 +32,7 @@
       }}
     {% endif %}
     {% if card_product.compare_at_price > card_product.price %}
-      <span class="product-card__badge">Sale</span>
+      <span class="product-card__badge">{{ 'products.product.sale' | t }}</span>
     {% endif %}
   </a>
   <div class="product-card__content">
@@ -55,10 +55,10 @@
       {% form 'product', card_product, class: 'product-card__form' %}
         <input type="hidden" name="id" value="{{ card_variant.id }}">
         <input type="hidden" name="quantity" value="1">
-        <button type="submit" class="product-card__add" aria-label="Add {{ card_product.title | escape }} to cart">Add to cart</button>
+        <button type="submit" class="product-card__add" aria-label="{{ 'products.product.quick_add' | t: title: card_product.title }}">{{ 'products.product.add_to_cart' | t }}</button>
       {% endform %}
     {% else %}
-      <span class="product-card__sold-out">Sold out</span>
+      <span class="product-card__sold-out">{{ 'products.product.sold_out' | t }}</span>
     {% endif %}
   </div>
 </article>
