@@ -14,8 +14,10 @@
     "footer": {
       "type": "footer",
       "settings": {
-        "menu": "",
-        "show_payment_icons": true
+        "background_color": "#07080a",
+        "show_payment_icons": true,
+        "enable_country_selector": false,
+        "enable_language_selector": false
       }
     }
   },
