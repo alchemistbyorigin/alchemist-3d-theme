@@ -12,6 +12,8 @@
     "content_for_index": []
   },
   "platform_customizations": {
-    "custom_css": []
+    "custom_css": [
+      ":root {--alchemist-black: #0b0c10; --alchemist-white: #f4f1ea; --alchemist-muted: rgba(244, 241, 234, 0.62); --alchemist-line: rgba(102, 252, 241, 0.2);}"
+    ]
   }
 }
