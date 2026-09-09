@@ -26,7 +26,9 @@
 
     {{ 'critical.css' | asset_url | stylesheet_tag: preload: true }}
     {{ 'alchemist.css' | asset_url | stylesheet_tag }}
-    {{ 'homepage.css' | asset_url | stylesheet_tag }}
+    {% if request.page_type == 'index' %}
+      {{ 'homepage.css' | asset_url | stylesheet_tag }}
+    {% endif %}
     {% render 'meta-tags' %}
     {{ content_for_header }}
   </head>
@@ -43,6 +45,5 @@
     <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'product.js' | asset_url }}" defer="defer"></script>
-    <script src="{{ 'three-hero.js' | asset_url }}" defer="defer"></script>
   </body>
 </html>
