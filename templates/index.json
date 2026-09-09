@@ -1,11 +1,53 @@
 {
   "sections": {
-    "main": {
+    "hero": {
       "type": "hero-3d",
+      "settings": {}
+    },
+    "featured": {
+      "type": "featured-collection",
+      "settings": {
+        "eyebrow": "CURATED OBJECTS",
+        "heading": "Selected pieces",
+        "text": "<p>A focused edit of objects made to feel tactile, rare and intentional.</p>",
+        "products_to_show": 4,
+        "show_view_all": true,
+        "view_all_label": "VIEW COLLECTION"
+      }
+    },
+    "story": {
+      "type": "editorial-story",
+      "settings": {
+        "image_position": "left",
+        "eyebrow": "THE MATERIAL STORY",
+        "heading": "Designed to be felt, not just seen",
+        "text": "<p>Tell the story behind the collection, the process and the point of view that makes the brand distinct.</p>",
+        "button_label": "DISCOVER THE STORY"
+      }
+    },
+    "collections": {
+      "type": "collection-showcase",
+      "blocks": {
+        "collection_1": { "type": "collection", "settings": { "eyebrow": "01 / OBJECTS", "link_label": "EXPLORE" } },
+        "collection_2": { "type": "collection", "settings": { "eyebrow": "02 / MATERIAL", "link_label": "EXPLORE" } },
+        "collection_3": { "type": "collection", "settings": { "eyebrow": "03 / EDITIONS", "link_label": "EXPLORE" } }
+      },
+      "block_order": ["collection_1", "collection_2", "collection_3"],
+      "settings": {
+        "eyebrow": "SHOP BY WORLD",
+        "heading": "Explore the collection"
+      }
+    },
+    "values": {
+      "type": "value-strip",
+      "blocks": {
+        "value_1": { "type": "value", "settings": { "kicker": "01", "heading": "Considered design", "text": "<p>Built around detail, material and a distinct point of view.</p>" } },
+        "value_2": { "type": "value", "settings": { "kicker": "02", "heading": "Made to endure", "text": "<p>A premium presentation for products designed to stay relevant beyond a season.</p>" } },
+        "value_3": { "type": "value", "settings": { "kicker": "03", "heading": "Immersive commerce", "text": "<p>Editorial storytelling and tactile interactions without losing sight of conversion.</p>" } }
+      },
+      "block_order": ["value_1", "value_2", "value_3"],
       "settings": {}
     }
   },
-  "order": [
-    "main"
-  ]
+  "order": ["hero", "featured", "story", "collections", "values"]
 }
