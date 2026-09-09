@@ -72,6 +72,15 @@
     mobileQuality: {{ section.settings.mobile_quality | json }},
     motionEnabled: {{ settings.enable_motion | json }}
   };
+
+  (() => {
+    if (document.querySelector('script[data-alchemist-hero-runtime]')) return;
+    const runtime = document.createElement('script');
+    runtime.src = {{ 'three-hero.js' | asset_url | json }};
+    runtime.defer = true;
+    runtime.dataset.alchemistHeroRuntime = '';
+    document.head.appendChild(runtime);
+  })();
 </script>
 
 {% schema %}
