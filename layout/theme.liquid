@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="theme-color" content="#07080a">
+    <meta name="theme-color" content="{{ settings.background_color | default: '#07080a' }}">
     <meta name="format-detection" content="telephone=no">
 
     {% liquid
@@ -18,15 +18,6 @@
     <link rel="canonical" href="{{ canonical_url | escape }}">
     <meta name="description" content="{{ meta_description | strip_html | escape }}">
 
-    {% style %}
-      :root {
-        --bg-dark: #07080a;
-        --accent-cyan: #66fcf1;
-        --text-light: #f4f1ea;
-        --text-muted: rgba(244, 241, 234, 0.62);
-        --border-subtle: rgba(102, 252, 241, 0.2);
-      }
-    {% endstyle %}
     {% render 'css-variables' %}
     {% unless settings.type_primary_font.system? %}
       <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
@@ -51,5 +42,6 @@
     <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'product.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'three-hero.js' | asset_url }}" defer="defer"></script>
   </body>
 </html>
