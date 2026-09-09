@@ -1,160 +1,90 @@
-<h1 align="center" style="position: relative;">
-  <br>
-    <img src="./assets/shoppy-x-ray.svg" alt="logo" width="200">
-  <br>
-  Shopify Skeleton Theme
-</h1>
+# Alchemist 3D
 
-A minimal, carefully structured Shopify theme designed to help you quickly get started. Designed with modularity, maintainability, and Shopify's best practices in mind.
+Alchemist 3D is a premium Shopify Online Store 2.0 theme focused on immersive storytelling, strong conversion UX, mobile performance, accessibility, and maintainable theme architecture.
 
-<p align="center">
-  <a href="./LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
-  <a href="./actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Shopify/skeleton-theme/actions/workflows/ci.yml/badge.svg"></a>
-</p>
+## Status
 
-## Getting started
+The theme is under active development. Commercial release should only happen after Shopify Theme Check, development-store testing, Lighthouse mobile testing, Theme Editor lifecycle testing, and accessibility smoke tests pass.
 
-### Prerequisites
+## Core principles
 
-Before starting, ensure you have the latest Shopify CLI installed:
+- Preserve working commerce behavior before adding visual complexity.
+- Prefer Shopify-native Liquid, sections, blocks, forms, routes, and APIs.
+- Load nonessential JavaScript and CSS only when needed.
+- Keep 3D/WebGL as progressive enhancement with a static fallback.
+- Build mobile-first and maintain keyboard/reduced-motion support.
+- Reuse shared components instead of duplicating product or grid logic.
+- Never rename published setting IDs without a migration plan.
 
-- [Shopify CLI](https://shopify.dev/docs/api/shopify-cli) – helps you download, upload, preview themes, and streamline your workflows
+## Requirements
 
-If you use VS Code:
+- Shopify development store
+- Shopify CLI
+- Node.js version supported by the current Shopify CLI
+- Shopify Liquid extension for VS Code recommended
 
-- [Shopify Liquid VS Code Extension](https://shopify.dev/docs/storefronts/themes/tools/shopify-liquid-vscode) – provides syntax highlighting, linting, inline documentation, and auto-completion specifically designed for Liquid templates
-
-### Clone
-
-Clone this repository using Git or Shopify CLI:
+## Local development
 
 ```bash
-git clone git@github.com:Shopify/skeleton-theme.git
-# or
-shopify theme init
+git clone https://github.com/alchemistbyorigin/alchemist-3d-theme.git
+cd alchemist-3d-theme
+shopify theme dev
 ```
 
-### Preview
-
-Preview this theme using Shopify CLI:
+For the current upgrade work, use the feature branch:
 
 ```bash
-shopify theme dev
+git checkout alchemist-v1-core-upgrade
 ```
 
 ## Theme architecture
 
-```bash
-.
-├── assets          # Stores static assets (CSS, JS, images, fonts, etc.)
-├── blocks          # Reusable, nestable, customizable UI components
-├── config          # Global theme settings and customization options
-├── layout          # Top-level wrappers for pages (layout templates)
-├── locales         # Translation files for theme internationalization
-├── sections        # Modular full-width page components
-├── snippets        # Reusable Liquid code or HTML fragments
-└── templates       # Templates combining sections to define page structures
+```text
+assets/      CSS, JavaScript, SVG and theme assets
+blocks/      Reusable theme blocks
+config/      Theme settings and saved configuration
+layout/      Global page layouts
+locales/     Translation and schema translation files
+sections/    Merchant-editable page sections
+snippets/    Shared Liquid components
+Templates/   Shopify JSON/Liquid templates
 ```
 
-To learn more, refer to the [theme architecture documentation](https://shopify.dev/docs/storefronts/themes/architecture).
+## Current premium direction
 
-### Templates
+The current build includes an immersive 3D hero with static fallback, premium homepage composition, product cards, product page foundation, header/navigation, cart drawer, global design settings, motion controls, and accessibility safeguards. Remaining work is tracked through the active pull request and release checklist.
 
-[Templates](https://shopify.dev/docs/storefronts/themes/architecture/templates#template-types) control what's rendered on each type of page in a theme.
+## Quality gates before release
 
-The Skeleton Theme scaffolds [JSON templates](https://shopify.dev/docs/storefronts/themes/architecture/templates/json-templates) to make it easy for merchants to customize their store.
+1. `shopify theme check` passes with zero release-blocking errors.
+2. Homepage, product, collection, cart, search, blog, article, 404, password and standard page templates render correctly.
+3. Mobile Lighthouse targets are validated on home, product and collection pages.
+4. Theme Editor add/remove/reorder behavior is tested for dynamic sections, especially the 3D hero.
+5. Keyboard navigation, focus states and reduced-motion behavior are smoke-tested.
+6. Customer-facing strings are translatable.
+7. No temporary or staging directories remain in the release branch.
+8. Documentation and changelog match the shipped version.
 
-None of the template types are required, and not all of them are included in the Skeleton Theme. Refer to the [template types reference](https://shopify.dev/docs/storefronts/themes/architecture/templates#template-types) for a full list.
+## Performance conventions
 
-### Sections
+- Use Shopify `image_url` + `image_tag` with responsive widths and sizes.
+- Eager-load only likely LCP imagery; lazy-load below-the-fold media.
+- Avoid global third-party dependencies for page-specific features.
+- Pause or dispose animation/render loops when hidden or removed.
+- Keep product/cart/search interactions isolated; do not monkey-patch browser globals.
 
-[Sections](https://shopify.dev/docs/storefronts/themes/architecture/sections) are Liquid files that allow you to create reusable modules of content that can be customized by merchants. They can also include blocks which allow merchants to add, remove, and reorder content within a section.
+## Accessibility conventions
 
-Sections are made customizable by including a `{% schema %}` in the body. For more information, refer to the [section schema documentation](https://shopify.dev/docs/storefronts/themes/architecture/sections/section-schema).
+- Use semantic HTML first.
+- Provide visible `:focus-visible` states.
+- Maintain ARIA state for drawers, menus and dialogs.
+- Respect `prefers-reduced-motion` and the global theme motion setting.
+- Keep interactive touch targets large enough for mobile use.
 
-### Blocks
+## Contribution workflow
 
-[Blocks](https://shopify.dev/docs/storefronts/themes/architecture/blocks) let developers create flexible layouts by breaking down sections into smaller, reusable pieces of Liquid. Each block has its own set of settings, and can be added, removed, and reordered within a section.
-
-Blocks are made customizable by including a `{% schema %}` in the body. For more information, refer to the [block schema documentation](https://shopify.dev/docs/storefronts/themes/architecture/blocks/theme-blocks/schema).
-
-## Schemas
-
-When developing components defined by schema settings, we recommend these guidelines to simplify your code:
-
-- **Single property settings**: For settings that correspond to a single CSS property, use CSS variables:
-
-  ```liquid
-  <div class="collection" style="--gap: {{ block.settings.gap }}px">
-    ...
-  </div>
-
-  {% stylesheet %}
-    .collection {
-      gap: var(--gap);
-    }
-  {% endstylesheet %}
-
-  {% schema %}
-  {
-    "settings": [{
-      "type": "range",
-      "label": "gap",
-      "id": "gap",
-      "min": 0,
-      "max": 100,
-      "unit": "px",
-      "default": 0,
-    }]
-  }
-  {% endschema %}
-  ```
-
-- **Multiple property settings**: For settings that control multiple CSS properties, use CSS classes:
-
-  ```liquid
-  <div class="collection {{ block.settings.layout }}">
-    ...
-  </div>
-
-  {% stylesheet %}
-    .collection--full-width {
-      /* multiple styles */
-    }
-    .collection--narrow {
-      /* multiple styles */
-    }
-  {% endstylesheet %}
-
-  {% schema %}
-  {
-    "settings": [{
-      "type": "select",
-      "id": "layout",
-      "label": "layout",
-      "values": [
-        { "value": "collection--full-width", "label": "t:options.full" },
-        { "value": "collection--narrow", "label": "t:options.narrow" }
-      ]
-    }]
-  }
-  {% endschema %}
-  ```
-
-## CSS & JavaScript
-
-For CSS and JavaScript, we recommend using the [`{% stylesheet %}`](https://shopify.dev/docs/api/liquid/tags#stylesheet) and [`{% javascript %}`](https://shopify.dev/docs/api/liquid/tags/javascript) tags. They can be included multiple times, but the code will only appear once.
-
-### `critical.css`
-
-The Skeleton Theme explicitly separates essential CSS necessary for every page into a dedicated `critical.css` file.
-
-## Contributing
-
-We're excited for your contributions to the Skeleton Theme! This repository aims to remain as lean, lightweight, and fundamental as possible, and we kindly ask your contributions to align with this intention.
-
-Visit our [CONTRIBUTING.md](./CONTRIBUTING.md) for a detailed overview of our process, guidelines, and recommendations.
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 
-Skeleton Theme is open-sourced under the [MIT](./LICENSE.md) License.
+See [LICENSE.md](./LICENSE.md).
