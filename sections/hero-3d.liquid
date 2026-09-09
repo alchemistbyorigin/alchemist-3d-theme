@@ -4,15 +4,16 @@
   data-section-id="{{ section.id }}"
   data-hero-3d
 >
-  <div class="alchemist-hero__canvas" data-three-container></div>
+  <div class="alchemist-hero__canvas" data-three-container aria-hidden="true"></div>
 
-  <div class="alchemist-hero__fallback">
+  <div class="alchemist-hero__fallback" aria-hidden="true">
     {% if section.settings.fallback_image != blank %}
       {{
         section.settings.fallback_image
         | image_url: width: 2400
         | image_tag:
           loading: 'eager',
+          fetchpriority: 'high',
           widths: '750, 1100, 1500, 2000, 2400',
           sizes: '100vw',
           class: 'alchemist-hero__fallback-image'
@@ -20,7 +21,7 @@
     {% endif %}
   </div>
 
-  <div class="alchemist-hero__overlay"></div>
+  <div class="alchemist-hero__overlay" aria-hidden="true"></div>
 
   <div class="alchemist-hero__content">
     {% if section.settings.eyebrow != blank %}
@@ -42,7 +43,7 @@
     {% endif %}
 
     <div class="alchemist-hero__actions">
-      {% if section.settings.primary_text != blank %}
+      {% if section.settings.primary_text != blank and section.settings.primary_link != blank %}
         <a
           href="{{ section.settings.primary_link }}"
           class="alchemist-hero__button alchemist-hero__button--primary"
@@ -51,7 +52,7 @@
         </a>
       {% endif %}
 
-      {% if section.settings.secondary_text != blank %}
+      {% if section.settings.secondary_text != blank and section.settings.secondary_link != blank %}
         <a
           href="{{ section.settings.secondary_link }}"
           class="alchemist-hero__button alchemist-hero__button--secondary"
@@ -62,13 +63,11 @@
     </div>
   </div>
 
-  <div class="alchemist-hero__scroll">
+  <div class="alchemist-hero__scroll" aria-hidden="true">
     <span>SCROLL</span>
     <span class="alchemist-hero__scroll-line"></span>
   </div>
 </section>
-
-{{ 'alchemist.css' | asset_url | stylesheet_tag }}
 
 <script>
   window.AlchemistHeroConfig = window.AlchemistHeroConfig || {};
@@ -79,8 +78,6 @@
     mobileQuality: {{ section.settings.mobile_quality | json }}
   };
 </script>
-
-<script src="{{ 'three-hero.js' | asset_url }}" defer></script>
 
 {% schema %}
 {
