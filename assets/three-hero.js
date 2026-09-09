@@ -32,20 +32,30 @@
     return threePromise;
   }
 
+  function isLowPowerDevice() {
+    const cores = Number(navigator.hardwareConcurrency || 8);
+    const memory = Number(navigator.deviceMemory || 8);
+    const saveData = Boolean(navigator.connection && navigator.connection.saveData);
+    return saveData || cores <= 4 || memory <= 4;
+  }
+
   function qualityProfile(settings) {
     const isMobile = window.matchMedia('(max-width: 749px)').matches;
-    if (!isMobile) return { pixelRatio: 1.75, particles: 1400, detail: 5 };
+    if (!isMobile) return { pixelRatio: 1.5, particles: 1100, detail: 4 };
 
     switch (settings.mobileQuality) {
-      case 'high': return { pixelRatio: 1.5, particles: 900, detail: 5 };
-      case 'medium': return { pixelRatio: 1.25, particles: 600, detail: 4 };
-      default: return { pixelRatio: 1, particles: 350, detail: 3 };
+      case 'high': return { pixelRatio: 1.4, particles: 750, detail: 4 };
+      case 'medium': return { pixelRatio: 1.2, particles: 500, detail: 3 };
+      default: return { pixelRatio: 1, particles: 280, detail: 2 };
     }
   }
 
   function showFallback(hero) {
     const fallback = hero.querySelector('.alchemist-hero__fallback');
+    const container = hero.querySelector('[data-three-container]');
     if (fallback) fallback.style.opacity = '1';
+    if (container) container.setAttribute('hidden', '');
+    hero.classList.add('alchemist-hero--fallback');
   }
 
   function createHero(THREE, hero) {
@@ -56,12 +66,13 @@
 
     const sectionId = hero.dataset.sectionId;
     const settings = getConfig(sectionId);
-    if (settings.enabled === false) {
+    const reducedMotion = settings.motionEnabled === false || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (settings.enabled === false || reducedMotion || isLowPowerDevice()) {
       showFallback(hero);
       return;
     }
 
-    const reducedMotion = settings.motionEnabled === false || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const quality = qualityProfile(settings);
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
@@ -76,6 +87,9 @@
     }
 
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.domElement.setAttribute('aria-hidden', 'true');
+    renderer.domElement.setAttribute('role', 'presentation');
+    container.removeAttribute('hidden');
     container.replaceChildren(renderer.domElement);
 
     const group = new THREE.Group();
@@ -86,7 +100,7 @@
     const object = new THREE.Mesh(geometry, material);
     group.add(object);
 
-    const wireGeometry = new THREE.IcosahedronGeometry(1.39, Math.max(2, quality.detail - 2));
+    const wireGeometry = new THREE.IcosahedronGeometry(1.39, Math.max(1, quality.detail - 2));
     const wireMaterial = new THREE.MeshBasicMaterial({ color: 0xeee9dd, wireframe: true, transparent: true, opacity: 0.08 });
     const wire = new THREE.Mesh(wireGeometry, wireMaterial);
     group.add(wire);
@@ -102,24 +116,21 @@
       positions[i * 3 + 2] = radius * Math.sin(phi) * Math.sin(theta);
     }
     particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const particleMaterial = new THREE.PointsMaterial({ color: 0xd8d0c2, size: 0.018, transparent: true, opacity: 0.55, depthWrite: false });
+    const particleMaterial = new THREE.PointsMaterial({ color: 0xd8d0c2, size: 0.018, transparent: true, opacity: 0.5, depthWrite: false });
     const particles = new THREE.Points(particleGeometry, particleMaterial);
     scene.add(particles);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 1.2));
-    const keyLight = new THREE.DirectionalLight(0xfff4df, 4);
+    scene.add(new THREE.AmbientLight(0xffffff, 1.1));
+    const keyLight = new THREE.DirectionalLight(0xfff4df, 3.5);
     keyLight.position.set(3, 4, 5);
     scene.add(keyLight);
-    const rimLight = new THREE.DirectionalLight(0x9da9b8, 3);
+    const rimLight = new THREE.DirectionalLight(0x9da9b8, 2.5);
     rimLight.position.set(-4, 1, -3);
     scene.add(rimLight);
-    const pointLight = new THREE.PointLight(0xffffff, 18, 8);
-    pointLight.position.set(0, 1, 3);
-    scene.add(pointLight);
 
     const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
-    const interaction = reducedMotion ? 0 : Number(settings.interaction ?? 0.7);
-    const speed = reducedMotion ? 0 : Number(settings.rotationSpeed ?? 0.4);
+    const interaction = Number(settings.interaction ?? 0.7);
+    const speed = Number(settings.rotationSpeed ?? 0.4);
     const clock = new THREE.Clock();
     let frameId = 0;
     let visible = true;
@@ -142,8 +153,10 @@
 
     const renderFrame = () => {
       if (destroyed) return;
-      frameId = requestAnimationFrame(renderFrame);
-      if (!visible || document.hidden) return;
+      if (!visible || document.hidden) {
+        frameId = requestAnimationFrame(renderFrame);
+        return;
+      }
 
       const elapsed = clock.getElapsedTime();
       mouse.x += (mouse.targetX - mouse.x) * 0.035;
@@ -153,19 +166,20 @@
       object.rotation.z = Math.sin(elapsed * 0.22) * 0.12;
       wire.rotation.copy(object.rotation);
       particles.rotation.y = elapsed * 0.015;
-      particles.rotation.x = Math.sin(elapsed * 0.08) * 0.08;
       renderer.render(scene, camera);
+      frameId = requestAnimationFrame(renderFrame);
     };
 
     const observer = new IntersectionObserver((entries) => {
       visible = entries[0]?.isIntersecting ?? true;
-    }, { rootMargin: '150px' });
+    }, { rootMargin: '100px' });
     observer.observe(hero);
 
-    if (interaction > 0) window.addEventListener('pointermove', pointerMove, { passive: true });
+    window.addEventListener('pointermove', pointerMove, { passive: true });
     window.addEventListener('resize', resize, { passive: true });
     resize();
-    renderFrame();
+    renderer.render(scene, camera);
+    frameId = requestAnimationFrame(renderFrame);
     hero.classList.add('alchemist-hero--ready');
 
     const destroy = () => {
@@ -181,7 +195,9 @@
       wireMaterial.dispose();
       particleGeometry.dispose();
       particleMaterial.dispose();
+      scene.clear();
       renderer.dispose();
+      renderer.forceContextLoss?.();
       renderer.domElement.remove();
       instances.delete(hero);
     };
@@ -193,12 +209,32 @@
     const heroes = root.matches?.('[data-hero-3d]') ? [root] : [...root.querySelectorAll('[data-hero-3d]')];
     if (!heroes.length) return;
 
+    const eligibleHeroes = heroes.filter((hero) => {
+      const settings = getConfig(hero.dataset.sectionId);
+      const reducedMotion = settings.motionEnabled === false || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (settings.enabled === false || reducedMotion || isLowPowerDevice()) {
+        showFallback(hero);
+        return false;
+      }
+      return true;
+    });
+
+    if (!eligibleHeroes.length) return;
+
     try {
       const THREE = await loadThree();
-      heroes.forEach((hero) => createHero(THREE, hero));
+      eligibleHeroes.forEach((hero) => createHero(THREE, hero));
     } catch (error) {
       console.error('Alchemist 3D Hero:', error);
-      heroes.forEach(showFallback);
+      eligibleHeroes.forEach(showFallback);
+    }
+  }
+
+  function scheduleInit(root = document) {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => init(root), { timeout: 1200 });
+    } else {
+      window.setTimeout(() => init(root), 120);
     }
   }
 
@@ -208,11 +244,11 @@
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => init());
+    document.addEventListener('DOMContentLoaded', () => scheduleInit());
   } else {
-    init();
+    scheduleInit();
   }
 
-  document.addEventListener('shopify:section:load', (event) => init(event.target));
+  document.addEventListener('shopify:section:load', (event) => scheduleInit(event.target));
   document.addEventListener('shopify:section:unload', (event) => unload(event.target));
 })();
