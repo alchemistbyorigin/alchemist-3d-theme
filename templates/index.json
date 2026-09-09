@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "main": {
+      "type": "hero-3d",
+      "settings": {}
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

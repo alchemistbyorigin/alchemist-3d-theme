@@ -1,0 +1,187 @@
+<section
+  id="AlchemistHero-{{ section.id }}"
+  class="alchemist-hero"
+  data-section-id="{{ section.id }}"
+  data-hero-3d
+>
+  <div class="alchemist-hero__canvas" data-three-container></div>
+
+  <div class="alchemist-hero__fallback">
+    {% if section.settings.fallback_image != blank %}
+      {{
+        section.settings.fallback_image
+        | image_url: width: 2400
+        | image_tag:
+          loading: 'eager',
+          widths: '750, 1100, 1500, 2000, 2400',
+          sizes: '100vw',
+          class: 'alchemist-hero__fallback-image'
+      }}
+    {% endif %}
+  </div>
+
+  <div class="alchemist-hero__overlay"></div>
+
+  <div class="alchemist-hero__content">
+    {% if section.settings.eyebrow != blank %}
+      <p class="alchemist-hero__eyebrow">
+        {{ section.settings.eyebrow | escape }}
+      </p>
+    {% endif %}
+
+    {% if section.settings.heading != blank %}
+      <h1 class="alchemist-hero__heading">
+        {{ section.settings.heading }}
+      </h1>
+    {% endif %}
+
+    {% if section.settings.subheading != blank %}
+      <div class="alchemist-hero__subheading">
+        {{ section.settings.subheading }}
+      </div>
+    {% endif %}
+
+    <div class="alchemist-hero__actions">
+      {% if section.settings.primary_text != blank %}
+        <a
+          href="{{ section.settings.primary_link }}"
+          class="alchemist-hero__button alchemist-hero__button--primary"
+        >
+          {{ section.settings.primary_text | escape }}
+        </a>
+      {% endif %}
+
+      {% if section.settings.secondary_text != blank %}
+        <a
+          href="{{ section.settings.secondary_link }}"
+          class="alchemist-hero__button alchemist-hero__button--secondary"
+        >
+          {{ section.settings.secondary_text | escape }}
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="alchemist-hero__scroll">
+    <span>SCROLL</span>
+    <span class="alchemist-hero__scroll-line"></span>
+  </div>
+</section>
+
+{{ 'alchemist.css' | asset_url | stylesheet_tag }}
+
+<script>
+  window.AlchemistHeroConfig = window.AlchemistHeroConfig || {};
+  window.AlchemistHeroConfig['{{ section.id }}'] = {
+    enabled: {{ section.settings.enable_3d | json }},
+    rotationSpeed: {{ section.settings.rotation_speed | json }},
+    interaction: {{ section.settings.interaction | json }},
+    mobileQuality: {{ section.settings.mobile_quality | json }}
+  };
+</script>
+
+<script src="{{ 'three-hero.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Alchemist 3D Hero",
+  "tag": "section",
+  "class": "section-alchemist-hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "ALCHEMIST BY ORIGIN"
+    },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "<p>ENTER THE ORIGIN</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "<p>Objects shaped by matter, memory and imagination.</p>"
+    },
+    {
+      "type": "text",
+      "id": "primary_text",
+      "label": "Primary button",
+      "default": "EXPLORE"
+    },
+    {
+      "type": "url",
+      "id": "primary_link",
+      "label": "Primary link"
+    },
+    {
+      "type": "text",
+      "id": "secondary_text",
+      "label": "Secondary button",
+      "default": "DISCOVER"
+    },
+    {
+      "type": "url",
+      "id": "secondary_link",
+      "label": "Secondary link"
+    },
+    {
+      "type": "image_picker",
+      "id": "fallback_image",
+      "label": "3D fallback image"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_3d",
+      "label": "Enable 3D",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "rotation_speed",
+      "label": "3D rotation speed",
+      "min": 0,
+      "max": 2,
+      "step": 0.1,
+      "default": 0.4
+    },
+    {
+      "type": "range",
+      "id": "interaction",
+      "label": "Pointer interaction",
+      "min": 0,
+      "max": 2,
+      "step": 0.1,
+      "default": 0.7
+    },
+    {
+      "type": "select",
+      "id": "mobile_quality",
+      "label": "Mobile 3D quality",
+      "options": [
+        {
+          "value": "low",
+          "label": "Low"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "high",
+          "label": "High"
+        }
+      ],
+      "default": "low"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Alchemist 3D Hero"
+    }
+  ]
+}
+{% endschema %}

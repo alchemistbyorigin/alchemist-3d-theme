@@ -1,0 +1,23 @@
+{% style %}
+  {% # Loads all font variantions with display: swap %}
+  {{ settings.type_primary_font | font_face: font_display: 'swap' }}
+  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
+  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+  {{ settings.type_primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+
+  :root {
+    --alchemist-obsidian: #0b0c10;
+    --alchemist-cyan: #66fcf1;
+    --alchemist-ink: #f4f1ea;
+    --alchemist-muted: rgba(244, 241, 234, 0.62);
+    --alchemist-line: rgba(102, 252, 241, 0.2);
+    --font-primary--family: {{ settings.type_primary_font.family }}, {{ settings.type_primary_font.fallback_families }};
+    --font-primary--style: {{ settings.type_primary_font.style }};
+    --font-primary--weight: {{ settings.type_primary_font.weight }};
+    --page-width: {{ settings.max_page_width }};
+    --page-margin: {{ settings.min_page_margin }}px;
+    --color-background: var(--alchemist-obsidian);
+    --color-foreground: var(--alchemist-ink);
+    --style-border-radius-inputs: {{ settings.input_corner_radius }}px;
+  }
+{% endstyle %}

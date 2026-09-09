@@ -1,0 +1,132 @@
+{% liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign product_form_id = 'product-form-' | append: section.id
+%}
+
+<section class="main-product" data-product-section data-section-id="{{ section.id }}">
+  <div class="main-product__media">
+    {% for media in product.media %}
+      <div class="main-product__media-item" id="ProductMedia-{{ section.id }}-{{ media.id }}">
+        {% case media.media_type %}
+          {% when 'image' %}
+            {% assign media_loading = 'lazy' %}
+            {% if forloop.first %}{% assign media_loading = 'eager' %}{% endif %}
+            {{
+              media
+              | image_url: width: 1400
+              | image_tag:
+                loading: media_loading,
+                widths: '480, 720, 960, 1200, 1400',
+                sizes: '(min-width: 990px) 60vw, 100vw',
+                alt: media.alt | default: product.title | escape
+            }}
+          {% when 'video' %}
+            {{ media | video_tag: controls: true, image_size: '1200x' }}
+          {% when 'external_video' %}
+            {{ media | external_video_tag }}
+          {% when 'model' %}
+            {{ media | model_viewer_tag: reveal: 'interaction', toggleable: true }}
+        {% endcase %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="main-product__info">
+    {% if product.vendor != blank %}<p class="main-product__vendor">{{ product.vendor | escape }}</p>{% endif %}
+    <h1>{{ product.title | escape }}</h1>
+    <div class="main-product__price" data-product-price>
+      <span data-current-price>{{ current_variant.price | money }}</span>
+      <s data-compare-price{% unless current_variant.compare_at_price > current_variant.price %} hidden{% endunless %}>{{ current_variant.compare_at_price | money }}</s>
+    </div>
+    <div class="main-product__description">{{ product.description }}</div>
+
+    {% form 'product', product, id: product_form_id, class: 'main-product__form', data-product-form: '' %}
+      <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
+      {% unless product.has_only_default_variant %}
+        <div class="main-product__options">
+          {% for option in product.options_with_values %}
+            <fieldset class="main-product__option">
+              <legend>{{ option.name | escape }}</legend>
+              <select name="options[{{ option.name | escape }}]" data-option-index="{{ forloop.index0 }}" aria-label="{{ option.name | escape }}">
+                {% for value in option.values %}
+                  <option value="{{ value | escape }}" {% if option.selected_value == value %}selected{% endif %}>{{ value | escape }}</option>
+                {% endfor %}
+              </select>
+            </fieldset>
+          {% endfor %}
+        </div>
+      {% endunless %}
+      <div class="main-product__purchase">
+        <label for="ProductQuantity-{{ section.id }}">Quantity</label>
+        <input id="ProductQuantity-{{ section.id }}" type="number" name="quantity" min="1" value="1">
+        <button type="submit" name="add" data-add-to-cart {% unless current_variant.available %}disabled{% endunless %}>
+          <span data-add-label>{% if current_variant.available %}Add to cart{% else %}Sold out{% endif %}</span>
+        </button>
+      </div>
+      {{ form | payment_button }}
+      <p class="main-product__form-error" data-form-error role="alert" hidden></p>
+    {% endform %}
+
+    <div class="main-product__accordions">
+      <details>
+        <summary>Specs</summary>
+        <div>{{ product.metafields.custom.specifications | metafield_tag }}</div>
+      </details>
+      <details>
+        <summary>Description</summary>
+        <div>{{ product.description }}</div>
+      </details>
+      <details>
+        <summary>Shipping</summary>
+        <div>{{ section.settings.shipping_text }}</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<script type="application/json" data-product-variants>{{ product.variants | json }}</script>
+
+{% style %}
+  .main-product { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(20rem, .8fr); gap: clamp(2rem, 6vw, 6rem); max-width: 1200px; margin: 0 auto; padding: 3rem 1rem; }
+  .main-product__media { display: grid; gap: 1rem; align-content: start; }
+  .main-product__media-item { contain: content; min-height: 20rem; background: rgba(255,255,255,.03); }
+  .main-product__media-item img, .main-product__media-item video { display: block; width: 100%; height: auto; }
+  .main-product__info { position: sticky; top: 6rem; align-self: start; }
+  .main-product__vendor { color: var(--text-muted); font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; }
+  .main-product__price { display: flex; gap: .75rem; margin: 1rem 0 1.5rem; font-size: 1.2rem; }
+  .main-product__price s { color: var(--text-muted); }
+  .main-product__description { color: var(--text-muted); line-height: 1.6; }
+  .main-product__options { display: grid; gap: 1rem; margin: 2rem 0; }
+  .main-product__option { border: 0; padding: 0; }
+  .main-product__option legend, .main-product__purchase label { margin-bottom: .4rem; color: var(--text-muted); font-size: .75rem; }
+  .main-product__option select, .main-product__purchase input { padding: .75rem; background: transparent; color: inherit; border: 1px solid var(--border-subtle); }
+  .main-product__option select { width: 100%; }
+  .main-product__purchase { display: grid; grid-template-columns: 1fr 5rem; gap: .5rem; margin: 1.5rem 0 .75rem; }
+  .main-product__purchase label { grid-column: 1 / -1; }
+  .main-product__purchase button { grid-column: 1 / -1; padding: 1rem; background: var(--accent-cyan); color: var(--bg-dark); border: 0; cursor: pointer; }
+  .main-product__purchase button:disabled { cursor: not-allowed; opacity: .5; }
+  .main-product__accordions { margin-top: 2rem; border-top: 1px solid var(--border-subtle); }
+  .main-product__accordions details { padding: 1rem 0; border-bottom: 1px solid var(--border-subtle); }
+  .main-product__accordions summary { cursor: pointer; font-weight: 600; }
+  .main-product__accordions details > div { padding-top: 1rem; color: var(--text-muted); }
+  @media screen and (max-width: 749px) { .main-product { display: block; } .main-product__info { position: static; margin-top: 2rem; } }
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "Main product",
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "shipping_text",
+      "label": "Shipping information",
+      "default": "Free shipping on qualifying orders. Delivery times are shown at checkout."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Main product"
+    }
+  ]
+}
+{% endschema %}

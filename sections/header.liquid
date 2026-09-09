@@ -1,0 +1,193 @@
+{% liquid
+  assign primary_menu = linklists[section.settings.menu]
+  assign account_url = routes.account_login_url
+  if customer
+    assign account_url = routes.account_url
+  endif
+%}
+
+<header class="site-header{% if section.settings.enable_sticky_header %} site-header--sticky{% endif %}" data-header>
+  <div class="site-header__inner">
+    <button
+      class="site-header__menu-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="MobileDrawer"
+      data-mobile-toggle
+    >
+      <span class="visually-hidden">Open menu</span>
+      <span aria-hidden="true">MENU</span>
+    </button>
+
+    <a class="site-header__logo" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+      {% if section.settings.logo != blank %}
+        {{
+          section.settings.logo
+          | image_url: width: section.settings.logo_width
+          | image_tag:
+            widths: '50, 100, 150, 200, 250, 300',
+            sizes: '(min-width: 750px) 160px, 120px',
+            loading: 'eager',
+            fetchpriority: 'high',
+            alt: shop.name
+        }}
+      {% else %}
+        {{ shop.name | escape }}
+      {% endif %}
+    </a>
+
+    <nav class="site-header__nav" aria-label="Main navigation">
+      <ul class="site-header__menu" role="list">
+        {% for link in primary_menu.links %}
+          {% assign submenu_id = 'HeaderMenu-' | append: forloop.index %}
+          <li class="site-header__menu-item{% if link.links != blank %} site-header__menu-item--has-dropdown{% endif %}">
+            <a href="{{ link.url }}" {% if link.current %}aria-current="page"{% endif %}>
+              {{ link.title | escape }}
+            </a>
+            {% if link.links != blank %}
+              <button
+                class="site-header__submenu-toggle"
+                type="button"
+                aria-label="Toggle {{ link.title | escape }} submenu"
+                aria-expanded="false"
+                aria-controls="{{ submenu_id }}"
+                aria-haspopup="true"
+                data-menu-toggle
+              >
+                <span aria-hidden="true">+</span>
+              </button>
+              <ul class="site-header__dropdown" id="{{ submenu_id }}" role="menu" hidden>
+                {% for child_link in link.links %}
+                  {% assign child_menu_id = submenu_id | append: '-' | append: forloop.index %}
+                  <li class="site-header__dropdown-item{% if child_link.links != blank %} site-header__menu-item--has-dropdown{% endif %}" role="none">
+                    <a href="{{ child_link.url }}" role="menuitem" {% if child_link.current %}aria-current="page"{% endif %}>
+                      {{ child_link.title | escape }}
+                    </a>
+                    {% if child_link.links != blank %}
+                      <button
+                        class="site-header__submenu-toggle"
+                        type="button"
+                        aria-label="Toggle {{ child_link.title | escape }} submenu"
+                        aria-expanded="false"
+                        aria-controls="{{ child_menu_id }}"
+                        aria-haspopup="true"
+                        data-menu-toggle
+                      >
+                        <span aria-hidden="true">+</span>
+                      </button>
+                      <ul class="site-header__dropdown site-header__dropdown--nested" id="{{ child_menu_id }}" role="menu" hidden>
+                        {% for grandchild_link in child_link.links %}
+                          <li role="none">
+                            <a href="{{ grandchild_link.url }}" role="menuitem" {% if grandchild_link.current %}aria-current="page"{% endif %}>{{ grandchild_link.title | escape }}</a>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <a class="site-header__search-toggle" href="{{ routes.search_url }}" aria-label="Search">
+        <span aria-hidden="true">SEARCH</span>
+      </a>
+      {% if shop.customer_accounts_enabled %}
+        <a href="{{ account_url }}" aria-label="{% if customer %}Account{% else %}Sign in{% endif %}">
+          {{ 'icon-account.svg' | inline_asset_content }}
+        </a>
+      {% endif %}
+      <button class="site-header__cart" type="button" aria-expanded="false" aria-controls="CartDrawer" data-cart-toggle>
+        <span class="visually-hidden">Cart</span>
+        {{ 'icon-cart.svg' | inline_asset_content }}
+        <span class="site-header__cart-count" data-cart-count{% if cart.item_count == 0 %} hidden{% endif %}>{{ cart.item_count }}</span>
+      </button>
+    </div>
+  </div>
+
+  <aside class="mobile-drawer" id="MobileDrawer" hidden data-mobile-drawer>
+    <div class="mobile-drawer__header">
+      <span>Menu</span>
+      <button type="button" aria-label="Close menu" data-mobile-close>X</button>
+    </div>
+    <nav aria-label="Mobile navigation">
+      <ul class="mobile-drawer__menu" role="list">
+        {% for link in primary_menu.links %}
+          <li>
+            {% if link.links != blank %}
+              <details>
+                <summary>{{ link.title | escape }}</summary>
+                <ul role="list">
+                  {% for child_link in link.links %}
+                    <li><a href="{{ child_link.url }}">{{ child_link.title | escape }}</a></li>
+                  {% endfor %}
+                </ul>
+              </details>
+            {% else %}
+              <a href="{{ link.url }}">{{ link.title | escape }}</a>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </nav>
+    {% if shop.customer_accounts_enabled %}
+      <a class="mobile-drawer__account" href="{{ account_url }}">
+        {% if customer %}Account{% else %}Sign in{% endif %}
+      </a>
+    {% endif %}
+    {% form 'localization', class: 'localization-form' %}
+      {% if localization.available_countries.size > 1 %}
+        <label for="HeaderCountry">Country</label>
+        <select id="HeaderCountry" name="country_code" onchange="this.form.submit()">
+          {% for country in localization.available_countries %}
+            <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>{{ country.name }} ({{ country.currency.iso_code }})</option>
+          {% endfor %}
+        </select>
+      {% endif %}
+    {% endform %}
+  </aside>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Primary menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "label": "Logo width",
+      "min": 50,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 160
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sticky_header",
+      "label": "Enable sticky header",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Header"
+    }
+  ]
+}
+{% endschema %}
