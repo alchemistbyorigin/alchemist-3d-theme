@@ -70,8 +70,7 @@
     rotationSpeed: {{ section.settings.rotation_speed | json }},
     interaction: {{ section.settings.interaction | json }},
     mobileQuality: {{ section.settings.mobile_quality | json }},
-    motionEnabled: {{ settings.enable_motion | json }},
-    threeModuleUrl: {{ 'three.module.min.js' | asset_url | json }}
+    motionEnabled: {{ settings.enable_motion | json }}
   };
 
   (() => {
