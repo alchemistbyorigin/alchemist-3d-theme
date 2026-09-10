@@ -1,5 +1,5 @@
 {
-  "type": "cart-drawer",
+  "type": "custom.cart_drawer",
   "name": "Cart drawer",
   "sections": {
     "cart-drawer": {
