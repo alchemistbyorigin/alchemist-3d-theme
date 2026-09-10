@@ -68,12 +68,21 @@
     "product": {
       "add_to_cart": "Add to cart",
       "sold_out": "Sold out",
+      "unavailable": "Unavailable",
       "quantity": "Quantity",
       "specs": "Specs",
       "description": "Description",
       "shipping": "Shipping",
       "sale": "Sale",
-      "quick_add": "Add {{ title }} to cart"
+      "quick_add": "Add {{ title }} to cart",
+      "sku": "SKU",
+      "in_stock": "In stock",
+      "low_stock": "Low stock — {{ count }} left",
+      "out_of_stock": "Out of stock",
+      "media_thumbnail": "View {{ title }} media {{ index }}",
+      "shipping_trust": "Fast, tracked delivery",
+      "returns_trust": "Easy returns",
+      "secure_trust": "Secure checkout"
     }
   },
   "search": {
