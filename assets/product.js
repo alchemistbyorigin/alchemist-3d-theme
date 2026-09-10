@@ -1,78 +1,66 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const sections = document.querySelectorAll('[data-product-section]');
-  if (!sections.length) return;
-
-  sections.forEach((section) => {
-    const form = section.querySelector('[data-product-form]');
-    const variantData = section.querySelector('[data-product-variants]');
-    if (!form || !variantData) return;
-
-    let variants;
-    try {
-      variants = JSON.parse(variantData.textContent);
-    } catch (error) {
-      console.error('Unable to read product variants.', error);
-      return;
-    }
-    if (!Array.isArray(variants) || !variants.length) return;
-
-    const selectors = [...form.querySelectorAll('[data-option-index]')];
-    const variantId = form.querySelector('[data-variant-id]');
-    const price = section.querySelector('[data-current-price]');
-    const comparePrice = section.querySelector('[data-compare-price]');
-    const addButton = form.querySelector('[data-add-to-cart]');
-    const addLabel = form.querySelector('[data-add-label]');
-    const error = form.querySelector('[data-form-error]');
-    if (!variantId || !addButton || !addLabel) return;
-
-    const money = (cents) => new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency: document.documentElement.dataset.currency || 'USD'
-    }).format(cents / 100);
-
-    const update = () => {
-      const values = selectors.map((selector) => selector.value);
-      const variant = variants.find((candidate) => candidate.options.every((option, index) => option === values[index]));
-      if (!variant) {
-        addButton.disabled = true;
-        addLabel.textContent = 'Unavailable';
-        return;
-      }
-      variantId.value = variant.id;
-      addButton.disabled = !variant.available;
-      addLabel.textContent = variant.available ? 'Add to cart' : 'Sold out';
-      if (price) price.textContent = money(variant.price);
-      if (comparePrice) {
-        comparePrice.hidden = !(variant.compare_at_price > variant.price);
-        comparePrice.textContent = variant.compare_at_price ? money(variant.compare_at_price) : '';
-      }
-    };
-
-    selectors.forEach((selector) => selector.addEventListener('change', update));
-    form.addEventListener('submit', async (event) => {
-      if (!window.fetch || !variantId.value) return;
-      event.preventDefault();
-      if (error) error.hidden = true;
-      addButton.disabled = true;
-      try {
-        const response = await fetch('/cart/add.js', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ items: [{ id: Number(variantId.value), quantity: Number(form.querySelector('[name="quantity"]')?.value || 1) }] })
+(() => {
+  function init(root = document) {
+    root.querySelectorAll('[data-product-section]').forEach(section => {
+      if (section.dataset.bound) return;
+      section.dataset.bound = 'true';
+      const form = section.querySelector('[data-product-form]');
+      const data = section.querySelector('[data-product-variants]');
+      let variants = [];
+      try { variants = JSON.parse(data?.textContent || '[]'); } catch { return; }
+      const showMedia = id => {
+        if (!id || !section.querySelector(`[data-media-id="${id}"]`)) return;
+        section.querySelectorAll('[data-media-id]').forEach(el => {
+          el.hidden = el.dataset.mediaId !== String(id);
+          if (el.hidden) el.querySelectorAll('video').forEach(video => video.pause());
         });
-        if (!response.ok) throw new Error('Unable to add product to cart');
-        document.querySelector('[data-cart-toggle]')?.click();
-      } catch (requestError) {
-        if (error) {
-          error.textContent = requestError.message;
-          error.hidden = false;
-        } else {
-          console.error(requestError);
-        }
-      } finally {
-        update();
-      }
+        section.querySelectorAll('[data-media-target]').forEach(el => el.setAttribute('aria-pressed', String(el.dataset.mediaTarget === String(id))));
+      };
+      section.querySelectorAll('[data-media-target]').forEach(button => button.addEventListener('click', () => showMedia(button.dataset.mediaTarget)));
+      if (!form) return;
+      const selector = form.querySelector('[data-variant-select]');
+      const plan = form.querySelector('[data-selling-plan]');
+      const button = form.querySelector('[data-add-to-cart]');
+      const label = form.querySelector('[data-add-label]');
+      const error = form.querySelector('[data-form-error]');
+      const status = form.querySelector('[data-form-status]');
+      let busy = false;
+      const update = (changeUrl = false) => {
+        const variant = variants.find(v => String(v.id) === selector.value);
+        const allocation = plan?.value ? variant?.plans.find(p => String(p.id) === plan.value) : null;
+        const available = Boolean(variant?.available && (!plan?.value || allocation));
+        button.disabled = busy || !available;
+        label.textContent = busy ? 'Adding…' : available ? 'Add to bag' : 'Unavailable';
+        const availability = form.querySelector('[data-availability]');
+        if (availability) availability.textContent = available ? 'Available' : 'Unavailable';
+        const price = section.querySelector('[data-current-price]');
+        if (price && variant) price.innerHTML = allocation?.price || variant.price;
+        const compare = section.querySelector('[data-compare-price]');
+        if (compare) { compare.hidden = !variant?.compare || Boolean(allocation); compare.innerHTML = variant?.compare || ''; }
+        const unit = section.querySelector('[data-unit-price]');
+        if (unit) unit.innerHTML = allocation ? '' : variant?.unit || '';
+        const payment = form.querySelector('.product-payment');
+        if (payment) payment.hidden = !available;
+        if (changeUrl && variant) { const url = new URL(location.href); url.searchParams.set('variant', variant.id); history.replaceState({}, '', url); showMedia(variant.media); }
+        return available;
+      };
+      selector.addEventListener('change', () => update(true));
+      plan?.addEventListener('change', () => update());
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (busy || !update()) return;
+        error.hidden = true; status.textContent = ''; busy = true; update();
+        try {
+          const response = await fetch((window.Shopify?.routes?.root || '/') + 'cart/add.js', {method:'POST', headers:{Accept:'application/json'}, body:new FormData(form)});
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.description || 'We could not add this item. Please try again.');
+          status.textContent = 'Added to your bag.';
+          document.dispatchEvent(new CustomEvent('origin:cart-changed', {detail:{open:true}}));
+        } catch (e) { error.textContent = e.message; error.hidden = false; }
+        finally { busy = false; update(); }
+      });
+      update();
     });
-    update();
-  });
-});
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => init()); else init();
+  document.addEventListener('shopify:section:load', e => init(e.target));
+})();

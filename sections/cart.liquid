@@ -1,37 +1,6 @@
-{% comment %}
-  This section is used in the cart template to render /cart page with an
-  overview of the items in customer's cart.
-
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/cart
-{% endcomment %}
-
-<h1>{{ 'cart.title' | t }}</h1>
-
-<form action="{{ routes.cart_url }}" method="post">
-  <table>
-    {% for item in cart.items %}
-      <tr>
-        <td>
-          {% render 'image', image: item.image, url: item.url %}
-        </td>
-        <td>
-          <p>{{ item.product.title }}</p>
-          {{ 'cart.remove' | t | link_to: item.url_to_remove }}
-        </td>
-        <td>
-          <input type="text" name="updates[]" value="{{ item.quantity }}">
-          <input type="submit" value="{{ 'cart.update' | t }}">
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
-
-  <input type="submit" name="checkout" value="{{ 'cart.checkout' | t }}">
-</form>
-
+<section class="section-wrap"><p class="eyebrow">YOUR SELECTION</p><h1>Your bag.</h1>{% if cart.item_count == 0 %}<div class="empty-state"><h2>A little room for something special.</h2><p>Your bag is currently empty.</p><a class="button" href="{{ routes.all_products_collection_url }}">Explore the collection ↗</a></div>{% else %}
+<form action="{{ routes.cart_url }}" method="post" class="cart-layout"><div>{% for item in cart.items %}<article class="cart-row"><a href="{{ item.url }}">{% if item.image %}{{ item.image | image_url: width: 240 | image_tag: loading: 'lazy' }}{% endif %}</a><div><h2><a href="{{ item.url }}">{{ item.product.title | escape }}</a></h2>{% unless item.product.has_only_default_variant %}<p>{{ item.variant.title | escape }}</p>{% endunless %}{% if item.selling_plan_allocation %}<p>{{ item.selling_plan_allocation.selling_plan.name | escape }}</p>{% endif %}{% for property in item.properties %}{% assign initial = property.first | slice: 0 %}{% if property.last != blank and initial != '_' %}<p>{{ property.first | escape }}: {{ property.last | escape }}</p>{% endif %}{% endfor %}<label class="visually-hidden" for="CartQty-{{ forloop.index }}">Quantity for {{ item.product.title | escape }}</label><input id="CartQty-{{ forloop.index }}" name="updates[]" type="number" min="0" step="1" value="{{ item.quantity }}"><p><a href="{{ item.url_to_remove }}">Remove</a></p>{% for discount in item.line_level_discount_allocations %}<p>{{ discount.discount_application.title | escape }} (−{{ discount.amount | money }})</p>{% endfor %}</div><div>{% if item.original_line_price > item.final_line_price %}<s>{{ item.original_line_price | money }}</s>{% endif %}<strong>{{ item.final_line_price | money }}</strong></div></article>{% endfor %}<button class="button button--outline" type="submit" name="update" style="margin-top:24px">Update bag</button></div>
+<aside class="cart-summary"><h2>Order summary</h2>{% for discount in cart.cart_level_discount_applications %}<p>{{ discount.title | escape }} −{{ discount.total_allocated_amount | money }}</p>{% endfor %}<div class="cart-total"><span>Subtotal</span><strong>{{ cart.total_price | money_with_currency }}</strong></div><label for="CartNote">Order note</label><textarea id="CartNote" name="note" rows="3">{{ cart.note | escape }}</textarea><p class="fine-print">{% if cart.taxes_included %}Taxes included. {% endif %}Shipping calculated at checkout.</p><button class="button" type="submit" name="checkout">Continue to checkout ↗</button></aside></form>{% endif %}</section>
 {% schema %}
-{
-  "name": "t:general.cart",
-  "settings": []
-}
+{"name": "Cart", "settings": []}
 {% endschema %}

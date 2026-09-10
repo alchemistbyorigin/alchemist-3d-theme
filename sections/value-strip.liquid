@@ -1,0 +1,35 @@
+<section class="alchemist-value-strip" id="ValueStrip-{{ section.id }}">
+  <div class="alchemist-value-strip__inner">
+    {% for block in section.blocks %}
+      <div class="alchemist-value-strip__item" {{ block.shopify_attributes }}>
+        {% if block.settings.kicker != blank %}<span class="alchemist-kicker">{{ block.settings.kicker | escape }}</span>{% endif %}
+        {% if block.settings.heading != blank %}<h3>{{ block.settings.heading | escape }}</h3>{% endif %}
+        {% if block.settings.text != blank %}<div class="alchemist-value-strip__text rte">{{ block.settings.text }}</div>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Alchemist value strip",
+  "max_blocks": 4,
+  "blocks": [
+    {
+      "type": "value",
+      "name": "Value",
+      "settings": [
+        { "type": "text", "id": "kicker", "label": "Kicker", "default": "01" },
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Considered design" },
+        { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Built around detail, material and a distinct point of view.</p>" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Alchemist value strip",
+      "blocks": [{"type":"value"},{"type":"value"},{"type":"value"}]
+    }
+  ]
+}
+{% endschema %}

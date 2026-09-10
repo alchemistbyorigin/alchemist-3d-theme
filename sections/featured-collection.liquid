@@ -1,0 +1,52 @@
+{% liquid
+  assign featured_collection = section.settings.collection
+  assign products_to_show = section.settings.products_to_show
+%}
+
+<section class="alchemist-section alchemist-featured" id="FeaturedCollection-{{ section.id }}">
+  <div class="alchemist-section__inner">
+    <div class="alchemist-section__header">
+      <div>
+        {% if section.settings.eyebrow != blank %}<p class="alchemist-kicker">{{ section.settings.eyebrow | escape }}</p>{% endif %}
+        {% if section.settings.heading != blank %}<h2 class="alchemist-section__title">{{ section.settings.heading | escape }}</h2>{% endif %}
+        {% if section.settings.text != blank %}<div class="alchemist-section__text rte">{{ section.settings.text }}</div>{% endif %}
+      </div>
+      {% if featured_collection != blank and section.settings.show_view_all %}
+        <a class="alchemist-text-link" href="{{ featured_collection.url }}">{{ section.settings.view_all_label | escape }}</a>
+      {% endif %}
+    </div>
+
+    <div class="alchemist-product-grid">
+      {% if featured_collection != blank %}
+        {% for product in featured_collection.products limit: products_to_show %}
+          {% render 'product-card', product: product %}
+        {% else %}
+          <p class="alchemist-empty">No products found in this collection.</p>
+        {% endfor %}
+      {% else %}
+        {% for i in (1..4) %}
+          <article class="product-card product-card--placeholder">
+            <div class="product-card__media">{{ 'product-' | append: i | placeholder_svg_tag: 'product-card__placeholder' }}</div>
+            <div class="product-card__content"><p class="product-card__vendor">ALCHEMIST</p><h3 class="product-card__title">Sample product</h3><div class="product-card__price"><span>$0.00</span></div></div>
+          </article>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Featured collection",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "CURATED OBJECTS" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Selected pieces" },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>A focused edit of objects made to feel tactile, rare and intentional.</p>" },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "range", "id": "products_to_show", "label": "Products to show", "min": 2, "max": 8, "step": 1, "default": 4 },
+    { "type": "checkbox", "id": "show_view_all", "label": "Show view all link", "default": true },
+    { "type": "text", "id": "view_all_label", "label": "View all label", "default": "VIEW COLLECTION" }
+  ],
+  "presets": [{ "name": "Featured collection" }]
+}
+{% endschema %}

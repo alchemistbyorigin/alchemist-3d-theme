@@ -1,32 +1,9 @@
-{% comment %}
-  This section is used in the collection template to render collection page
-  listing all products within a collection.
-
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/collection
-{% endcomment %}
-
-<h1>{{ collection.title }}</h1>
-
-<div class="collection-products">
-  {% paginate collection.products by 20 %}
-    {% for product in collection.products %}
-      {% render 'product-card', product: product %}
-    {% endfor %}
-
-    {{ paginate | default_pagination }}
-  {% endpaginate %}
-</div>
-
-{% stylesheet %}
-  .collection-products {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-  }
-{% endstylesheet %}
-
+<section class="section-wrap"><div class="catalog-heading"><p class="eyebrow">{{ section.settings.eyebrow | escape }}</p><h1>{{ collection.title | escape }}</h1>{% if collection.description != blank %}<div class="rte">{{ collection.description }}</div>{% endif %}</div>
+<form class="filter-form" method="get" action="{{ collection.url }}"><div class="catalog-toolbar"><span>{{ collection.products_count }} products</span><div><label for="Sort-{{ section.id }}">Sort by</label><select name="sort_by" id="Sort-{{ section.id }}">{% assign sort_by = collection.sort_by | default: collection.default_sort_by %}{% for option in collection.sort_options %}<option value="{{ option.value }}"{% if option.value == sort_by %} selected{% endif %}>{{ option.name | escape }}</option>{% endfor %}</select></div></div>
+{% if section.settings.enable_filtering %}<div class="filter-options">{% for filter in collection.filters %}<details><summary>{{ filter.label | escape }}{% if filter.active_values.size > 0 %} ({{ filter.active_values.size }}){% endif %}</summary><div class="filter-values">{% case filter.type %}{% when 'boolean', 'list' %}{% for value in filter.values %}<label><input type="checkbox" name="{{ value.param_name }}" value="{{ value.value | escape }}"{% if value.active %} checked{% elsif value.count == 0 %} disabled{% endif %}>{{ value.label | escape }} ({{ value.count }})</label>{% endfor %}{% when 'price_range' %}<label for="Min-{{ section.id }}">Minimum price ({{ cart.currency.iso_code }})</label><input type="number" step="any" id="Min-{{ section.id }}" name="{{ filter.min_value.param_name }}" min="0"{% if filter.min_value.value %} value="{{ filter.min_value.value | divided_by: 100.0 }}"{% endif %}><label for="Max-{{ section.id }}">Maximum price ({{ cart.currency.iso_code }})</label><input type="number" step="any" id="Max-{{ section.id }}" name="{{ filter.max_value.param_name }}" min="0"{% if filter.max_value.value %} value="{{ filter.max_value.value | divided_by: 100.0 }}"{% endif %}>{% endcase %}</div></details>{% endfor %}</div>{% endif %}
+<div class="filter-actions"><button class="button" type="submit">Apply</button><a class="text-link" href="{{ collection.url }}">Reset</a></div></form>
+<div class="active-filters">{% for filter in collection.filters %}{% for value in filter.active_values %}<a href="{{ value.url_to_remove }}">{{ value.label | escape }} ×</a>{% endfor %}{% if filter.type == 'price_range' %}{% if filter.min_value.value != nil or filter.max_value.value != nil %}<a href="{{ filter.url_to_remove }}">Clear price ×</a>{% endif %}{% endif %}{% endfor %}</div>
+{% paginate collection.products by 24 %}<div class="product-grid">{% for product in collection.products %}{% render 'product-card', product: product %}{% else %}<div class="empty-state"><h2>No pieces found.</h2><p>Try another filter or explore the full collection.</p><a href="{{ collection.url }}" class="button">Reset filters</a></div>{% endfor %}</div>{% if paginate.pages > 1 %}<nav class="pagination" aria-label="Pagination">{{ paginate | default_pagination }}</nav>{% endif %}{% endpaginate %}</section>
 {% schema %}
-{
-  "name": "t:general.collection",
-  "settings": []
-}
+{"name": "Collection", "settings": [{"type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "EXPLORE THE COLLECTION"}, {"type": "checkbox", "id": "enable_filtering", "label": "Enable filters", "default": true}]}
 {% endschema %}

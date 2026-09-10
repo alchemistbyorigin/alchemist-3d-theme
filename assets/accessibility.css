@@ -1,0 +1,4 @@
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px solid var(--alchemist-cyan);outline-offset:3px}
+:where(button,input,select,textarea){font:inherit}
+@media(max-width:749px){.site-header button,.mobile-drawer button,.cart-drawer button,.product-card__add,.alchemist-button,.alchemist-text-link{min-height:48px}.site-header button,.mobile-drawer button,.cart-drawer button{min-width:48px}.mobile-drawer nav a,.mobile-drawer summary{display:flex;min-height:48px;align-items:center}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.alchemist-hero__scroll-line{animation:none!important}}

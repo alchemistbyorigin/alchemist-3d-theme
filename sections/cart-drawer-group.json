@@ -1,0 +1,17 @@
+{
+  "type": "custom.cart_drawer",
+  "name": "Cart drawer",
+  "sections": {
+    "cart-drawer": {
+      "type": "cart-drawer",
+      "settings": {
+        "enable_free_shipping_bar": true,
+        "free_shipping_threshold": 100,
+        "show_cart_note": true
+      }
+    }
+  },
+  "order": [
+    "cart-drawer"
+  ]
+}
