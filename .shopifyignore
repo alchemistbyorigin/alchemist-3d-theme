@@ -11,3 +11,9 @@
 #
 # Ignore templates and sections with a regular expression:
 #   /(templates|sections)/.*\.json/
+
+# Local development and verification artifacts
+/previews/
+/tools/
+/temp/
+DESIGN-NOTES.md

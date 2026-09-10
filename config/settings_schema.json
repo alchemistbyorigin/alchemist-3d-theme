@@ -1,10 +1,10 @@
 [
   {
     "name": "theme_info",
-    "theme_name": "Alchemist 3D",
-    "theme_version": "1.0.0",
+    "theme_name": "Alchemist",
+    "theme_version": "0.3.0",
     "theme_author": "Alchemist by Origin",
-    "theme_documentation_url": "https://github.com/alchemistbyorigin/alchemist-3d-theme",
+    "theme_documentation_url": "https://github.com/alchemistbyorigin/alchemist-3d-theme#readme",
     "theme_support_url": "https://github.com/alchemistbyorigin/alchemist-3d-theme/issues"
   },
   {
@@ -13,44 +13,14 @@
       {
         "type": "font_picker",
         "id": "type_primary_font",
-        "default": "work_sans_n4",
-        "label": "Primary font"
+        "label": "Body font",
+        "default": "work_sans_n4"
       },
       {
-        "type": "range",
-        "id": "body_scale",
-        "min": 90,
-        "max": 120,
-        "step": 1,
-        "unit": "%",
-        "label": "Body text scale",
-        "default": 100
-      }
-    ]
-  },
-  {
-    "name": "Layout",
-    "settings": [
-      {
-        "type": "select",
-        "id": "max_page_width",
-        "label": "Page width",
-        "options": [
-          { "value": "80rem", "label": "Compact" },
-          { "value": "90rem", "label": "Standard" },
-          { "value": "110rem", "label": "Wide" }
-        ],
-        "default": "90rem"
-      },
-      {
-        "type": "range",
-        "id": "min_page_margin",
-        "min": 10,
-        "max": 100,
-        "step": 1,
-        "unit": "px",
-        "label": "Page margin",
-        "default": 20
+        "type": "font_picker",
+        "id": "heading_font",
+        "label": "Heading font",
+        "default": "assistant_n4"
       }
     ]
   },
@@ -60,51 +30,104 @@
       {
         "type": "color",
         "id": "background_color",
-        "default": "#07080A",
-        "label": "Background"
+        "label": "Page background",
+        "default": "#F5F2EB"
       },
       {
         "type": "color",
         "id": "foreground_color",
-        "default": "#F4F1EA",
-        "label": "Text"
+        "label": "Text",
+        "default": "#242520"
       },
       {
         "type": "color",
         "id": "accent_color",
-        "default": "#66FCF1",
-        "label": "Accent"
+        "label": "Accent",
+        "default": "#66563F"
       },
       {
         "type": "color",
-        "id": "muted_color",
-        "default": "#9A9995",
-        "label": "Muted text"
+        "id": "dark_color",
+        "label": "Dark sections",
+        "default": "#171916"
+      },
+      {
+        "type": "color",
+        "id": "light_color",
+        "label": "Light text",
+        "default": "#F5F2EB"
       }
     ]
   },
   {
-    "name": "Buttons and inputs",
+    "name": "Layout",
     "settings": [
       {
         "type": "range",
-        "id": "button_corner_radius",
-        "min": 0,
-        "max": 30,
-        "step": 1,
+        "id": "page_width",
+        "label": "Page width",
+        "min": 1000,
+        "max": 1600,
+        "step": 20,
         "unit": "px",
-        "label": "Button corner radius",
-        "default": 0
+        "default": 1360
       },
       {
         "type": "range",
-        "id": "input_corner_radius",
-        "min": 0,
-        "max": 20,
-        "step": 1,
+        "id": "min_page_margin",
+        "label": "Page margin",
+        "min": 16,
+        "max": 64,
+        "step": 2,
         "unit": "px",
-        "label": "Input corner radius",
-        "default": 4
+        "default": 40
+      }
+    ]
+  },
+  {
+    "name": "Product cards",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "show_vendor",
+        "label": "Show vendor",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "show_second_image",
+        "label": "Show second image on hover",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Social links",
+    "settings": [
+      {
+        "type": "url",
+        "id": "social_instagram_link",
+        "label": "Instagram"
+      },
+      {
+        "type": "url",
+        "id": "social_tiktok_link",
+        "label": "Tiktok"
+      },
+      {
+        "type": "url",
+        "id": "social_youtube_link",
+        "label": "Youtube"
+      },
+      {
+        "type": "url",
+        "id": "social_facebook_link",
+        "label": "Facebook"
+      },
+      {
+        "type": "url",
+        "id": "social_twitter_link",
+        "label": "Twitter"
       }
     ]
   },

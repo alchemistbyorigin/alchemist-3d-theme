@@ -1,24 +1,43 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "type": "footer",
-  "name": "t:general.footer",
+  "name": "Footer",
   "sections": {
     "footer": {
       "type": "footer",
       "settings": {
-        "background_color": "#07080a",
+        "background_color": "#171916",
         "show_payment_icons": true,
-        "enable_country_selector": false,
-        "enable_language_selector": false
-      }
+        "enable_country_selector": true,
+        "enable_language_selector": true
+      },
+      "blocks": {
+        "brand": {
+          "type": "text",
+          "settings": {
+            "heading": "A considered perspective.",
+            "content": "<p>Objects shaped by material, proportion and personal expression.</p>"
+          }
+        },
+        "shop": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Explore",
+            "menu": "main-menu"
+          }
+        },
+        "help": {
+          "type": "link_list",
+          "settings": {
+            "heading": "Client services",
+            "menu": "footer"
+          }
+        }
+      },
+      "block_order": [
+        "brand",
+        "shop",
+        "help"
+      ]
     }
   },
   "order": [

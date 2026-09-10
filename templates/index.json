@@ -2,6 +2,43 @@
   "sections": {
     "hero": {
       "type": "hero-3d",
+      "settings": {
+        "secondary_link": "#OriginStory"
+      }
+    },
+    "edit": {
+      "type": "origin-products",
+      "settings": {}
+    },
+    "story": {
+      "type": "origin-story",
+      "settings": {}
+    },
+    "gallery": {
+      "type": "origin-collections",
+      "settings": {},
+      "blocks": {
+        "one": {
+          "type": "collection",
+          "settings": {}
+        },
+        "two": {
+          "type": "collection",
+          "settings": {}
+        },
+        "three": {
+          "type": "collection",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "one",
+        "two",
+        "three"
+      ]
+    },
+    "newsletter": {
+      "type": "origin-newsletter",
       "settings": {}
     },
     "featured": {
@@ -49,5 +86,11 @@
       "settings": {}
     }
   },
-  "order": ["hero", "featured", "story", "collections", "values"]
+  "order": [
+    "main",
+    "edit",
+    "story",
+    "gallery",
+    "newsletter"
+  ]
 }

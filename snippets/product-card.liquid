@@ -1,64 +1,19 @@
 {% liquid
-  assign card_product = product
-  assign card_variant = card_product.selected_or_first_available_variant
-  assign secondary_media = card_product.media[1]
+assign card_product = product
+assign card_variant = card_product.selected_or_first_available_variant
+assign secondary_media = card_product.images[1]
 %}
-
-<article class="product-card" data-product-card>
-  <a class="product-card__media" href="{{ card_product.url }}" aria-label="{{ card_product.title | escape }}">
-    {% if card_product.featured_media %}
-      {{
-        card_product.featured_media
-        | image_url: width: 720
-        | image_tag:
-          loading: 'lazy',
-          widths: '240, 360, 540, 720',
-          sizes: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw',
-          alt: card_product.featured_media.alt | default: card_product.title | escape
-      }}
-    {% else %}
-      {{ 'product-1' | placeholder_svg_tag: 'product-card__placeholder' }}
-    {% endif %}
-    {% if secondary_media %}
-      {{
-        secondary_media
-        | image_url: width: 720
-        | image_tag:
-          loading: 'lazy',
-          widths: '240, 360, 540, 720',
-          sizes: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw',
-          class: 'product-card__secondary-image',
-          alt: secondary_media.alt | default: card_product.title | escape
-      }}
-    {% endif %}
-    {% if card_product.compare_at_price > card_product.price %}
-      <span class="product-card__badge">{{ 'products.product.sale' | t }}</span>
-    {% endif %}
-  </a>
-  <div class="product-card__content">
-    {% if card_product.vendor != blank %}<p class="product-card__vendor">{{ card_product.vendor | escape }}</p>{% endif %}
-    <h2 class="product-card__title"><a href="{{ card_product.url }}">{{ card_product.title | escape }}</a></h2>
-    <div class="product-card__price">
-      {% if card_product.compare_at_price > card_product.price %}<s>{{ card_product.compare_at_price | money }}</s>{% endif %}
-      <span>{{ card_product.price | money }}</span>
-    </div>
-    {% for option in card_product.options_with_values %}
-      {% if option.name downcase contains 'color' or option.name downcase contains 'colour' %}
-        <div class="product-card__swatches" aria-label="{{ option.name | escape }}">
-          {% for value in option.values %}
-            <span class="product-card__swatch" title="{{ value | escape }}" style="--swatch-color: {{ value | escape }};"></span>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endfor %}
-    {% if card_variant.available %}
-      {% form 'product', card_product, class: 'product-card__form' %}
-        <input type="hidden" name="id" value="{{ card_variant.id }}">
-        <input type="hidden" name="quantity" value="1">
-        <button type="submit" class="product-card__add" aria-label="{{ 'products.product.quick_add' | t: title: card_product.title }}">{{ 'products.product.add_to_cart' | t }}</button>
-      {% endform %}
-    {% else %}
-      <span class="product-card__sold-out">{{ 'products.product.sold_out' | t }}</span>
-    {% endif %}
-  </div>
-</article>
+<article class="product-card">
+<a class="product-card__media" href="{{ card_product.url }}" aria-label="{{ card_product.title | escape }}">
+{% if card_product.featured_image %}{{ card_product.featured_image | image_url: width: 900 | image_tag: widths: '240, 450, 720, 900', sizes: '(min-width: 990px) 25vw, 50vw', loading: 'lazy' }}{% else %}{{ 'product-1' | placeholder_svg_tag }}{% endif %}
+{% if secondary_media and settings.show_second_image %}{{ secondary_media | image_url: width: 900 | image_tag: widths: '240, 450, 720, 900', sizes: '(min-width: 990px) 25vw, 50vw', loading: 'lazy', class: 'product-card__secondary-image' }}{% endif %}
+{% unless card_product.available %}<span class="product-card__badge">Sold out</span>{% else %}{% if card_product.compare_at_price > card_product.price %}<span class="product-card__badge">Sale</span>{% endif %}{% endunless %}
+</a><div class="product-card__content">
+{% if settings.show_vendor and card_product.vendor != blank %}<p class="product-card__vendor">{{ card_product.vendor | escape }}</p>{% endif %}
+<h3 class="product-card__title"><a href="{{ card_product.url }}">{{ card_product.title | escape }}</a></h3>
+<div class="product-card__price">{% if card_product.price_varies %}<span>From</span>{% endif %}<span>{{ card_product.price | money }}</span>{% if card_product.compare_at_price > card_product.price %}<s>{{ card_product.compare_at_price | money }}</s>{% endif %}</div>
+{% for option in card_product.options_with_values %}{% assign option_name = option.name | downcase %}{% if option_name contains 'color' or option_name contains 'colour' %}<div class="product-card__swatches" aria-label="{{ option.name | escape }}">{% for value in option.values %}{% if value.swatch.image %}<span class="product-card__swatch" title="{{ value.name | escape }}" style="background-image:url({{ value.swatch.image | image_url: width: 32 }})"></span>{% elsif value.swatch.color %}<span class="product-card__swatch" title="{{ value.name | escape }}" style="--swatch-color:{{ value.swatch.color }}"></span>{% endif %}{% endfor %}</div>{% endif %}{% endfor %}
+{% if card_product.available %}{% if card_product.has_only_default_variant and card_product.requires_selling_plan == false %}
+{% form 'product', card_product, class: 'product-card__form' %}<input type="hidden" name="id" value="{{ card_variant.id }}"><button class="product-card__add" type="submit">Add to bag <span aria-hidden="true">+</span></button>{% endform %}
+{% else %}<a class="product-card__add" href="{{ card_product.url }}">Choose options <span aria-hidden="true">↗</span></a>{% endif %}{% endif %}
+</div></article>

@@ -56,11 +56,11 @@
               >
                 <span aria-hidden="true">+</span>
               </button>
-              <ul class="site-header__dropdown" id="{{ submenu_id }}" role="menu" hidden>
+              <ul class="site-header__dropdown" id="{{ submenu_id }}" hidden>
                 {% for child_link in link.links %}
                   {% assign child_menu_id = submenu_id | append: '-' | append: forloop.index %}
-                  <li class="site-header__dropdown-item{% if child_link.links != blank %} site-header__menu-item--has-dropdown{% endif %}" role="none">
-                    <a href="{{ child_link.url }}" role="menuitem" {% if child_link.current %}aria-current="page"{% endif %}>
+                  <li class="site-header__dropdown-item{% if child_link.links != blank %} site-header__menu-item--has-dropdown{% endif %}">
+                    <a href="{{ child_link.url }}" {% if child_link.current %}aria-current="page"{% endif %}>
                       {{ child_link.title | escape }}
                     </a>
                     {% if child_link.links != blank %}
@@ -75,10 +75,10 @@
                       >
                         <span aria-hidden="true">+</span>
                       </button>
-                      <ul class="site-header__dropdown site-header__dropdown--nested" id="{{ child_menu_id }}" role="menu" hidden>
+                      <ul class="site-header__dropdown site-header__dropdown--nested" id="{{ child_menu_id }}" hidden>
                         {% for grandchild_link in child_link.links %}
-                          <li role="none">
-                            <a href="{{ grandchild_link.url }}" role="menuitem" {% if grandchild_link.current %}aria-current="page"{% endif %}>{{ grandchild_link.title | escape }}</a>
+                          <li>
+                            <a href="{{ grandchild_link.url }}" {% if grandchild_link.current %}aria-current="page"{% endif %}>{{ grandchild_link.title | escape }}</a>
                           </li>
                         {% endfor %}
                       </ul>
@@ -109,7 +109,7 @@
     </div>
   </div>
 
-  <aside class="mobile-drawer" id="MobileDrawer" hidden data-mobile-drawer>
+  <aside class="mobile-drawer" id="MobileDrawer" hidden data-mobile-drawer role="dialog" aria-modal="true" aria-label="Navigation" tabindex="-1">
     <div class="mobile-drawer__header">
       <span>Menu</span>
       <button type="button" aria-label="Close menu" data-mobile-close>X</button>

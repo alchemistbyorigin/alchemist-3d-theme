@@ -29,22 +29,23 @@
       </div>
     {% endif %}
 
+    <p class="cart-error" data-cart-error role="alert" hidden></p>
     <div class="cart-drawer__content" data-cart-content>
       {% if cart.item_count == 0 %}
         <div class="cart-drawer__empty">
-          <p>Your alchemical vessel is empty.</p>
+          <p>Your cart is empty.</p>
           <a class="cart-drawer__continue" href="{{ routes.all_products_collection_url }}">Explore the collection</a>
         </div>
       {% else %}
         <div class="cart-drawer__items" data-cart-items>
           {% for item in cart.items %}
-            <article class="cart-item" data-cart-item data-line="{{ forloop.index }}">
+            <article class="cart-item" data-cart-item data-key="{{ item.key | escape }}">
               {% if item.image %}
-                {{ item.image | image_url: width: 240 | image_tag: loading: 'lazy', widths: '120, 180, 240', sizes: '96px', alt: item.image.alt | default: item.product.title | escape }}
+                {{ item.image | image_url: width: 240 | image_tag: loading: 'lazy', widths: '120, 180, 240', sizes: '96px', alt: item.product.title }}
               {% endif %}
               <div class="cart-item__details">
                 <a href="{{ item.url }}">{{ item.product.title | escape }}</a>
-                {% unless item.product.has_only_default_variant %}<p>{{ item.variant.title | escape }}</p>{% endunless %}
+                {% unless item.product.has_only_default_variant %}<p>{{ item.variant.title | escape }}</p>{% endunless %}{% if item.selling_plan_allocation %}<p>{{ item.selling_plan_allocation.selling_plan.name | escape }}</p>{% endif %}
                 {% unless item.properties == empty %}
                   <ul class="cart-item__properties" role="list">
                     {% for property in item.properties %}
@@ -99,38 +100,7 @@
   </div>
 </aside>
 
-{% style %}
-  .cart-drawer { position: fixed; z-index: 25; inset: 0; visibility: visible; }
-  .cart-drawer[hidden] { display: block; visibility: hidden; pointer-events: none; }
-  .cart-drawer__backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, .65); opacity: 0; transition: opacity .25s ease; }
-  .cart-drawer[data-open] .cart-drawer__backdrop { opacity: 1; pointer-events: auto; }
-  .cart-drawer__panel { position: absolute; top: 0; right: 0; display: flex; flex-direction: column; width: min(30rem, 100%); height: 100%; padding: 1.5rem; background: var(--alchemist-black, #0b0c10); color: var(--alchemist-white, #f4f1ea); overflow: auto; outline: none; transform: translateX(100%); transition: transform .3s ease; }
-  .cart-drawer[data-open] .cart-drawer__panel { transform: translateX(0); }
-  .cart-drawer__header, .cart-drawer__total { display: flex; align-items: center; justify-content: space-between; }
-  .cart-drawer__header button, .cart-item button { border: 0; background: transparent; color: var(--alchemist-cyan, #66fcf1); cursor: pointer; }
-  .cart-drawer__shipping { margin: 1.5rem 0; color: var(--alchemist-muted, rgba(244, 241, 234, .62)); font-size: .8rem; }
-  .cart-drawer__progress { height: .3rem; margin-top: .5rem; background: rgba(244, 241, 234, .15); }
-  .cart-drawer__progress span { display: block; height: 100%; background: var(--alchemist-cyan, #66fcf1); transition: width .3s ease; }
-  .cart-drawer__items { display: grid; gap: 1rem; }
-  .cart-item { display: grid; grid-template-columns: 6rem 1fr; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--alchemist-line, rgba(102, 252, 241, .2)); }
-  .cart-item img { width: 6rem; height: 6rem; object-fit: cover; }
-  .cart-item__details { display: grid; gap: .35rem; font-size: .8rem; }
-  .cart-item__details a { color: inherit; text-decoration: none; }
-  .cart-item__properties { padding: 0; color: var(--alchemist-muted); list-style: none; }
-  .cart-item__pricing { display: flex; gap: .5rem; align-items: baseline; }
-  .cart-item__pricing small { color: var(--alchemist-muted); }
-  .cart-item__quantity { display: flex; align-items: center; width: max-content; border: 1px solid var(--alchemist-line); }
-  .cart-item__quantity input { width: 2.5rem; padding: .25rem; background: transparent; color: inherit; border: 0; text-align: center; }
-  .cart-drawer__empty { display: grid; gap: 1rem; place-items: center; padding: 4rem 1rem; text-align: center; }
-  .cart-drawer__continue, .cart-drawer__checkout { padding: 1rem; background: var(--alchemist-cyan); color: var(--alchemist-black); text-align: center; text-decoration: none; }
-  .cart-drawer__footer { display: grid; gap: 1rem; margin-top: auto; padding-top: 1.5rem; }
-  .cart-drawer__checkout { width: 100%; border: 0; cursor: pointer; text-transform: uppercase; letter-spacing: .12em; }
-  .cart-drawer__footer > a:last-child { color: var(--alchemist-muted); text-align: center; }
-  .cart-drawer__note { color: var(--alchemist-muted); }
-  .cart-drawer__note textarea { display: block; width: 100%; margin-top: .5rem; padding: .6rem; background: transparent; color: inherit; border: 1px solid var(--alchemist-line); }
-  .cart-drawer__discounts { margin: 0; padding: 0; color: var(--alchemist-cyan); list-style: none; font-size: .8rem; }
-  .cart-drawer__shipping-note { color: var(--alchemist-muted); font-size: .75rem; }
-{% endstyle %}
+
 
 {% schema %}
 {
@@ -140,7 +110,7 @@
       "type": "checkbox",
       "id": "enable_free_shipping_bar",
       "label": "Enable free shipping progress bar",
-      "default": true
+      "default": false
     },
     {
       "type": "range",
@@ -149,14 +119,14 @@
       "min": 0,
       "max": 500,
       "step": 5,
-      "unit": "currency",
+      "info": "Amount in your store currency. Match your shipping settings.",
       "default": 100
     },
     {
       "type": "checkbox",
       "id": "show_cart_note",
       "label": "Show order note",
-      "default": true
+      "default": false
     }
   ],
   "presets": [
