@@ -1,0 +1,38 @@
+name: Shopify Preview Package
+
+on:
+  push:
+    branches:
+      - alchemist-v1-core-upgrade
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Build Shopify theme ZIP
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build clean theme package
+        run: |
+          set -euo pipefail
+          mkdir -p dist/theme
+          for dir in assets blocks config layout locales sections snippets templates; do
+            if [ -d "$dir" ]; then
+              cp -R "$dir" "dist/theme/$dir"
+            fi
+          done
+          cd dist/theme
+          zip -r ../ALCHEMIST-3D-v1.0.0-shopify.zip .
+
+      - name: Upload Shopify theme package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ALCHEMIST-3D-v1.0.0-shopify
+          path: dist/ALCHEMIST-3D-v1.0.0-shopify.zip
+          if-no-files-found: error
+          retention-days: 14
