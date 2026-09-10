@@ -7,7 +7,6 @@ class CartDrawer {
     this.nativeFetch = window.fetch.bind(window);
     this.refreshing = false;
     this.bindEvents();
-    this.interceptCartRequests();
   }
 
   get activeDrawer() {
@@ -55,18 +54,11 @@ class CartDrawer {
       }
       if (event.key === 'Tab') this.trapFocus(event, drawer);
     });
-  }
 
-  interceptCartRequests() {
-    window.fetch = async (...args) => {
-      const response = await this.nativeFetch(...args);
-      const requestUrl = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
-      const isCartMutation = /\/cart\/(add|change|update)(\.js)?(?:\?|$)/.test(requestUrl);
-      if (response.ok && isCartMutation) {
-        this.refresh();
-      }
-      return response;
-    };
+    document.addEventListener('alchemist:cart:changed', async (event) => {
+      await this.refresh();
+      if (event.detail?.open) this.open();
+    });
   }
 
   async changeLine(item, quantity) {
