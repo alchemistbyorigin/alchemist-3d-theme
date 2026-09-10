@@ -180,9 +180,18 @@
     {% endform %}
 
     <div class="main-product__trust" aria-label="Product purchase benefits">
-      <div><span aria-hidden="true">✓</span><span>{{ section.settings.shipping_trust_text | default: 'products.product.shipping_trust' | t }}</span></div>
-      <div><span aria-hidden="true">↺</span><span>{{ section.settings.returns_trust_text | default: 'products.product.returns_trust' | t }}</span></div>
-      <div><span aria-hidden="true">◇</span><span>{{ section.settings.secure_trust_text | default: 'products.product.secure_trust' | t }}</span></div>
+      <div>
+        <span aria-hidden="true">✓</span>
+        <span>{% if section.settings.shipping_trust_text != blank %}{{ section.settings.shipping_trust_text | escape }}{% else %}{{ 'products.product.shipping_trust' | t }}{% endif %}</span>
+      </div>
+      <div>
+        <span aria-hidden="true">↺</span>
+        <span>{% if section.settings.returns_trust_text != blank %}{{ section.settings.returns_trust_text | escape }}{% else %}{{ 'products.product.returns_trust' | t }}{% endif %}</span>
+      </div>
+      <div>
+        <span aria-hidden="true">◇</span>
+        <span>{% if section.settings.secure_trust_text != blank %}{{ section.settings.secure_trust_text | escape }}{% else %}{{ 'products.product.secure_trust' | t }}{% endif %}</span>
+      </div>
     </div>
 
     <div class="main-product__accordions">
@@ -268,15 +277,15 @@
   .main-product__options { display: grid; gap: 1.2rem; margin: 1.8rem 0; }
   .main-product__option { margin: 0; padding: 0; border: 0; }
   .main-product__option legend { display: flex; justify-content: space-between; width: 100%; margin-bottom: .65rem; color: var(--text-muted); font-size: .76rem; }
-  .main-product__option legend strong { color: var(--text-primary); font-weight: 500; }
+  .main-product__option legend strong { color: var(--text-light); font-weight: 500; }
   .main-product__option-values { display: flex; flex-wrap: wrap; gap: .5rem; }
   .main-product__option-pill { min-width: 48px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: .7rem .9rem; border: 1px solid var(--border-subtle); background: transparent; cursor: pointer; transition: border-color .18s ease, background .18s ease, color .18s ease; }
   .main-product__option-input:checked + .main-product__option-pill { border-color: var(--accent-cyan); background: rgba(102,252,241,.08); color: var(--accent-cyan); }
   .main-product__option-input:focus-visible + .main-product__option-pill { outline: 2px solid var(--accent-cyan); outline-offset: 3px; }
   .main-product__purchase { display: grid; grid-template-columns: 5.25rem 1fr; gap: .65rem; margin: 1.5rem 0 .8rem; }
   .main-product__purchase label { grid-column: 1 / -1; margin-bottom: -.2rem; color: var(--text-muted); font-size: .75rem; }
-  .main-product__purchase input { min-height: 52px; width: 100%; padding: .75rem; text-align: center; background: transparent; color: inherit; border: 1px solid var(--border-subtle); border-radius: var(--input-radius, 4px); }
-  .main-product__purchase button, .main-product__sticky-atc button { min-height: 52px; padding: .9rem 1.2rem; background: var(--accent-cyan); color: var(--bg-dark); border: 1px solid var(--accent-cyan); border-radius: var(--button-radius, 0); font-weight: 700; letter-spacing: .04em; cursor: pointer; }
+  .main-product__purchase input { min-height: 52px; width: 100%; padding: .75rem; text-align: center; background: transparent; color: inherit; border: 1px solid var(--border-subtle); border-radius: var(--style-border-radius-inputs, 4px); }
+  .main-product__purchase button, .main-product__sticky-atc button { min-height: 52px; padding: .9rem 1.2rem; background: var(--accent-cyan); color: var(--bg-dark); border: 1px solid var(--accent-cyan); border-radius: var(--style-border-radius-buttons, 0); font-weight: 700; letter-spacing: .04em; cursor: pointer; }
   .main-product__purchase button:disabled, .main-product__sticky-atc button:disabled { cursor: not-allowed; opacity: .45; }
   .main-product__dynamic-checkout { margin-top: .75rem; }
   .main-product__form-error { margin: .8rem 0 0; color: #ffb4b4; font-size: .85rem; }
