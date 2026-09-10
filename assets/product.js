@@ -52,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }).format(Number(cents || 0) / 100);
 
     const optionIndices = [...new Set(optionInputs.map((input) => Number(input.dataset.optionIndex)))].sort((a, b) => a - b);
-
     const selectedValues = () => optionIndices.map((index) => form.querySelector(`[data-option-index="${index}"]:checked`)?.value || '');
 
     const findVariant = () => {
@@ -66,14 +65,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const id = String(mediaId);
       const target = mediaItems.find((item) => String(item.dataset.mediaId) === id);
       if (!target) return;
-
       mediaItems.forEach((item) => {
         const active = item === target;
         item.hidden = !active;
         item.classList.toggle('is-active', active);
         if (!active) item.querySelectorAll('video').forEach((video) => video.pause?.());
       });
-
       mediaButtons.forEach((button) => {
         const active = String(button.dataset.mediaTarget) === id;
         button.classList.toggle('is-active', active);
@@ -93,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateOptionAvailability = () => {
       if (!optionInputs.length) return;
       const current = selectedValues();
-
       optionInputs.forEach((input) => {
         const optionIndex = Number(input.dataset.optionIndex);
         const possible = variants.some((variant) => {
@@ -104,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return !selected || value === selected;
           });
         });
-
         input.disabled = !possible;
         input.setAttribute('aria-disabled', possible ? 'false' : 'true');
         const label = form.querySelector(`label[for="${CSS.escape(input.id)}"]`);
@@ -119,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
         inventoryLabel.textContent = text.outOfStock;
         return;
       }
-
       const quantity = Number(variant.inventory_quantity);
       if (variant.inventory_management && Number.isFinite(quantity) && quantity > 0 && quantity <= lowStockThreshold) {
         inventoryLabel.textContent = text.lowStock.replace('__COUNT__', String(quantity));
@@ -146,7 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
       updateOptionLabels();
       updateOptionAvailability();
       const variant = findVariant();
-
       if (!variant) {
         addButton.disabled = true;
         addLabel.textContent = text.unavailable;
@@ -156,22 +149,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (inventoryLabel) inventoryLabel.textContent = text.outOfStock;
         return null;
       }
-
       variantId.value = variant.id;
       addButton.disabled = !variant.available;
       addLabel.textContent = variant.available ? text.add : text.soldOut;
-
       if (price) price.textContent = money(variant.price);
       if (comparePrice) {
         const onSale = Number(variant.compare_at_price) > Number(variant.price);
         comparePrice.hidden = !onSale;
         comparePrice.textContent = onSale ? money(variant.compare_at_price) : '';
       }
-
       if (stickyAdd) stickyAdd.disabled = !variant.available;
       if (stickyAddLabel) stickyAddLabel.textContent = variant.available ? text.add : text.soldOut;
       if (stickyPrice) stickyPrice.textContent = money(variant.price);
-
       updateInventory(variant);
       updateSku(variant);
       if (changeMedia && variant.featured_media_id) setActiveMedia(variant.featured_media_id, { focusThumbnail: true });
@@ -181,10 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     optionInputs.forEach((input) => input.addEventListener('change', () => update()));
     mediaButtons.forEach((button) => button.addEventListener('click', () => setActiveMedia(button.dataset.mediaTarget)));
-
-    if (stickyAdd) stickyAdd.addEventListener('click', () => {
-      if (!stickyAdd.disabled) form.requestSubmit();
-    });
+    if (stickyAdd) stickyAdd.addEventListener('click', () => { if (!stickyAdd.disabled) form.requestSubmit(); });
     if (sticky) sticky.hidden = false;
 
     form.addEventListener('submit', async (event) => {
@@ -193,16 +179,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (error) error.hidden = true;
       addButton.disabled = true;
       if (stickyAdd) stickyAdd.disabled = true;
-
       try {
         const response = await fetch('/cart/add.js', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({
-            items: [{ id: Number(variantId.value), quantity: Math.max(1, Number(form.querySelector('[name="quantity"]')?.value || 1)) }]
-          })
+          body: JSON.stringify({ items: [{ id: Number(variantId.value), quantity: Math.max(1, Number(form.querySelector('[name="quantity"]')?.value || 1)) }] })
         });
-
         if (!response.ok) {
           let message = text.unavailable;
           try {
@@ -213,8 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           throw new Error(message);
         }
-
-        document.querySelector('[data-cart-toggle]')?.click();
+        document.dispatchEvent(new CustomEvent('alchemist:cart:changed', { detail: { open: true, source: 'product' } }));
       } catch (requestError) {
         if (error) {
           error.textContent = requestError.message;
