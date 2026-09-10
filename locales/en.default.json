@@ -41,7 +41,24 @@
   "collections": {
     "title": "Collections",
     "view_all": "View collection",
-    "explore": "Explore"
+    "explore": "Explore",
+    "collection": {
+      "eyebrow": "Collection",
+      "product_count": "{{ count }} products",
+      "filter": "Filter",
+      "apply": "Apply filters",
+      "clear": "Clear",
+      "clear_all": "Clear all",
+      "clear_filters": "Clear filters",
+      "active_filters": "Active filters",
+      "price_from": "From",
+      "price_to": "To",
+      "sort_by": "Sort by",
+      "sort": "Apply sort",
+      "empty_title": "No products found",
+      "empty_text": "Try changing or clearing your filters.",
+      "pagination": "Collection pagination"
+    }
   },
   "gift_card": {
     "add_to_apple_wallet": "Add to Apple Wallet",
