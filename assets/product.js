@@ -51,10 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
       currency: document.documentElement.dataset.currency || 'USD'
     }).format(Number(cents || 0) / 100);
 
-    const selectedValues = () => {
-      const indices = [...new Set(optionInputs.map((input) => Number(input.dataset.optionIndex)))].sort((a, b) => a - b);
-      return indices.map((index) => form.querySelector(`[data-option-index="${index}"]:checked`)?.value || '');
-    };
+    const optionIndices = [...new Set(optionInputs.map((input) => Number(input.dataset.optionIndex)))].sort((a, b) => a - b);
+
+    const selectedValues = () => optionIndices.map((index) => form.querySelector(`[data-option-index="${index}"]:checked`)?.value || '');
 
     const findVariant = () => {
       if (!optionInputs.length) return variants.find((variant) => String(variant.id) === String(variantId.value)) || variants[0];
@@ -72,9 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const active = item === target;
         item.hidden = !active;
         item.classList.toggle('is-active', active);
-        if (!active) {
-          item.querySelectorAll('video').forEach((video) => video.pause?.());
-        }
+        if (!active) item.querySelectorAll('video').forEach((video) => video.pause?.());
       });
 
       mediaButtons.forEach((button) => {
@@ -93,9 +90,30 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     };
 
+    const updateOptionAvailability = () => {
+      if (!optionInputs.length) return;
+      const current = selectedValues();
+
+      optionInputs.forEach((input) => {
+        const optionIndex = Number(input.dataset.optionIndex);
+        const possible = variants.some((variant) => {
+          if (!variant.available) return false;
+          return variant.options.every((value, index) => {
+            if (index === optionIndex) return value === input.value;
+            const selected = current[index];
+            return !selected || value === selected;
+          });
+        });
+
+        input.disabled = !possible;
+        input.setAttribute('aria-disabled', possible ? 'false' : 'true');
+        const label = form.querySelector(`label[for="${CSS.escape(input.id)}"]`);
+        if (label) label.classList.toggle('is-unavailable', !possible);
+      });
+    };
+
     const updateInventory = (variant) => {
       if (!inventoryStatus || !inventoryLabel) return;
-
       inventoryStatus.classList.toggle('is-unavailable', !variant?.available);
       if (!variant || !variant.available) {
         inventoryLabel.textContent = text.outOfStock;
@@ -126,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const update = ({ changeMedia = true, changeUrl = true } = {}) => {
       updateOptionLabels();
+      updateOptionAvailability();
       const variant = findVariant();
 
       if (!variant) {
@@ -161,17 +180,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     optionInputs.forEach((input) => input.addEventListener('change', () => update()));
+    mediaButtons.forEach((button) => button.addEventListener('click', () => setActiveMedia(button.dataset.mediaTarget)));
 
-    mediaButtons.forEach((button) => {
-      button.addEventListener('click', () => setActiveMedia(button.dataset.mediaTarget));
+    if (stickyAdd) stickyAdd.addEventListener('click', () => {
+      if (!stickyAdd.disabled) form.requestSubmit();
     });
-
-    if (stickyAdd) {
-      stickyAdd.addEventListener('click', () => {
-        if (!stickyAdd.disabled) form.requestSubmit();
-      });
-    }
-
     if (sticky) sticky.hidden = false;
 
     form.addEventListener('submit', async (event) => {
@@ -186,10 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({
-            items: [{
-              id: Number(variantId.value),
-              quantity: Math.max(1, Number(form.querySelector('[name="quantity"]')?.value || 1))
-            }]
+            items: [{ id: Number(variantId.value), quantity: Math.max(1, Number(form.querySelector('[name="quantity"]')?.value || 1)) }]
           })
         });
 
